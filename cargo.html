@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cargo Services | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" data-page="index.html" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="booking.html" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="cargo.html" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="tracking.html" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<main style="padding:5rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-eyebrow">Cargo Shipping</span>
+      <h1 class="section-title mt-3">Send Your Cargo Across Somalia</h1>
+      <p class="section-desc mx-auto text-center" style="max-width:720px;">Fill out the form below to request a cargo pickup, track your package, and get a demo tracking ID.</p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <form id="cargoRequestForm" class="card p-4 shadow-sm" novalidate>
+          <div class="mb-4">
+            <label class="form-label">Sender Name</label>
+            <input type="text" class="form-control form-control-custom" placeholder="Your name" required />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Destination</label>
+            <select class="form-select form-select-custom" required>
+              <option value="">Choose destination</option>
+              <option>Mogadishu (MGQ)</option>
+              <option>Bosaso (BSY)</option>
+              <option>Hargeisa (HGA)</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Cargo Type</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="cargo-type-btn btn btn-outline-secondary">Packages</button>
+              <button type="button" class="cargo-type-btn btn btn-outline-secondary">Documents</button>
+              <button type="button" class="cargo-type-btn btn btn-outline-secondary">Electronics</button>
+            </div>
+            <input id="selectedCargoType" type="hidden" value="" />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Weight</label>
+            <input type="text" class="form-control form-control-custom" placeholder="e.g. 15 kg" required />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-control form-control-custom" placeholder="+252 6x xxx xxxx" required />
+          </div>
+          <button type="submit" class="btn-primary-custom">
+            <span><i class="fas fa-box me-2"></i>Submit Cargo Request</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

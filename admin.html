@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" data-page="index.html" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="booking.html" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="cargo.html" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="tracking.html" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<main style="padding:5rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-eyebrow">Dashboard</span>
+      <h1 class="section-title mt-3">Admin Area</h1>
+      <p class="section-desc mx-auto text-center" style="max-width:720px;">This page is a placeholder for the admin dashboard. Your login now points to a valid page instead of a 404.</p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card p-4 shadow-sm">
+          <h3 class="mb-3">Welcome, Admin</h3>
+          <p>Use the navigation links above to visit the public pages. This admin page exists so the login redirect does not generate a missing page error.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
