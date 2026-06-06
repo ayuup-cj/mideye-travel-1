@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cargo Request | Mideye Travel Agency</title>
+  <meta name="description" content="Request cargo shipping services with Mideye Travel Agency in Galkacyo, Somalia."/>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Master CSS -->
+  <link href="../style.css" rel="stylesheet"/>
+  <style>
+    /* ── Placeholder contrast fix ── */
+    .form-control-custom::placeholder,
+    textarea.form-control-custom::placeholder {
+      color: rgba(68, 19, 6, 0.45);
+      opacity: 1;
+    }
+    /* Firefox */
+    .form-control-custom::-moz-placeholder { color: rgba(68,19,6,0.45); opacity: 1; }
+
+    /* ── Dimensions row: tighter label + larger gap ── */
+    .dimensions-row { gap: 1.25rem 1rem; }
+    .dimensions-row .dim-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .dim-input-wrap {
+      position: relative;
+    }
+    .dim-input-wrap input {
+      padding-right: 3rem;
+    }
+    .dim-unit {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(68,19,6,0.4);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── Description textarea ── */
+    textarea.cargo-description {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.65;
+    }
+
+    /* ── Section dividers: slightly more breathing room ── */
+    .cargo-section { margin-bottom: 2.5rem; padding-bottom: 2rem; }
+
+    /* ── Register button right edge spacing ── */
+    .nav-register-btn { margin-right: 0.5rem; }
+
+    /* ── Checkbox group card style ── */
+    .check-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--white);
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .check-card:hover { border-color: var(--brown); background: rgba(253,247,237,0.6); }
+    .check-card input[type="checkbox"] { margin-top: 0.15rem; flex-shrink: 0; }
+    .check-card-label { font-size: 0.9rem; line-height: 1.4; cursor: pointer; }
+    .check-card-label strong { display: block; color: var(--brown); font-weight: 600; }
+    .check-card-label span { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* ── Active nav highlight ── */
+    .nav-link-custom.active {
+      color: var(--brown) !important;
+      background: rgba(68,19,6,0.08);
+      border-radius: var(--r-sm);
+    }
+  </style>
+</head>
+<body class="inner-page">
+
+<!-- ═══════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════ -->
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom active" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+        <li class="nav-item" id="navDashboardItem" style="display:none;">
+          <a class="nav-link-custom" id="navDashboardLink" href="#"><i class="fas fa-th-large me-1"></i>Dashboard</a>
+        </li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0" id="navAuthButtons">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom nav-register-btn" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<main style="padding-top:7rem;padding-bottom:4rem;">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+      <span class="section-eyebrow"><i class="fas fa-cube me-2"></i>Cargo Shipping</span>
+      <h1 class="section-title mt-3">Ship Your Cargo Safely</h1>
+      <p class="section-desc mx-auto">Get a quote and submit your cargo request for fast, reliable shipping across Somalia.</p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Cargo Request Form -->
+        <div class="card border-0 shadow-sm p-5" style="background:var(--cream);border-radius:var(--r-lg);">
+          <form id="cargoRequestForm" novalidate>
+            <!-- Sender Information -->
+            <div class="cargo-section border-bottom" style="border-color:var(--border);">
+              <h5 class="fw-700 mb-4" style="color:var(--brown);"><i class="fas fa-user me-2"></i>Sender Information</h5>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label">Full Name <span style="color:var(--brown-mid);">*</span></label>
+                  <input type="text" class="form-control form-control-custom" placeholder="e.g. Ahmed Ali Hassan" required/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Phone Number <span style="color:var(--brown-mid);">*</span></label>
+                  <input type="tel" class="form-control form-control-custom" placeholder="e.g. +252 61 1234567" required/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" class="form-control form-control-custom" placeholder="e.g. ahmed@email.com"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Street Address</label>
+                  <input type="text" class="form-control form-control-custom" placeholder="e.g. Hodan District, Galkacyo"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recipient Information -->
+            <div class="cargo-section border-bottom" style="border-color:var(--border);">
+              <h5 class="fw-700 mb-4" style="color:var(--brown);"><i class="fas fa-location-dot me-2"></i>Recipient Information</h5>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label">Recipient Name <span style="color:var(--brown-mid);">*</span></label>
+                  <input type="text" class="form-control form-control-custom" placeholder="e.g. Fatima Mohamed Omar" required/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Phone Number <span style="color:var(--brown-mid);">*</span></label>
+                  <input type="tel" class="form-control form-control-custom" placeholder="e.g. +252 61 7654321" required/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Destination City <span style="color:var(--brown-mid);">*</span></label>
+                  <select class="form-control form-control-custom" required>
+                    <option value="">— Select destination —</option>
+                    <option value="MGQ">Mogadishu (MGQ)</option>
+                    <option value="HGA">Hargeisa (HGA)</option>
+                    <option value="KSM">Kismayo (KSM)</option>
+                    <option value="BDI">Baidoa (BDI)</option>
+                    <option value="GLK">Galkacyo (GLK)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Postal Code <span class="text-muted" style="font-weight:400;">(Optional)</span></label>
+                  <input type="text" class="form-control form-control-custom" placeholder="e.g. SO-110"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cargo Details -->
+            <div class="cargo-section border-bottom" style="border-color:var(--border);">
+              <h5 class="fw-700 mb-4" style="color:var(--brown);"><i class="fas fa-box-open me-2"></i>Cargo Details</h5>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label">Cargo Type <span style="color:var(--brown-mid);">*</span></label>
+                  <select class="form-control form-control-custom" required>
+                    <option value="">— Select cargo type —</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="textiles">Textiles &amp; Clothing</option>
+                    <option value="machinery">Machinery &amp; Parts</option>
+                    <option value="food">Food &amp; Beverages</option>
+                    <option value="furniture">Furniture</option>
+                    <option value="documents">Documents</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Number of Pieces <span style="color:var(--brown-mid);">*</span></label>
+                  <div class="dim-input-wrap">
+                    <input type="number" class="form-control form-control-custom" min="1" placeholder="e.g. 3" required/>
+                    <span class="dim-unit">pcs</span>
+                  </div>
+                </div>
+
+                <!-- Dimensions row — increased spacing and unit labels -->
+                <div class="col-12">
+                  <label class="form-label mb-3">Dimensions &amp; Weight</label>
+                  <div class="row g-4">
+                    <div class="col-md-4">
+                      <label class="form-label" style="font-size:0.82rem;color:var(--text-muted);">Weight <span style="color:var(--brown-mid);">*</span></label>
+                      <div class="dim-input-wrap">
+                        <input type="number" class="form-control form-control-custom" min="0" step="0.1" placeholder="0.0" required/>
+                        <span class="dim-unit">kg</span>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label" style="font-size:0.82rem;color:var(--text-muted);">Length <span style="font-weight:400;">(optional)</span></label>
+                      <div class="dim-input-wrap">
+                        <input type="number" class="form-control form-control-custom" min="0" placeholder="0"/>
+                        <span class="dim-unit">cm</span>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label" style="font-size:0.82rem;color:var(--text-muted);">Width <span style="font-weight:400;">(optional)</span></label>
+                      <div class="dim-input-wrap">
+                        <input type="number" class="form-control form-control-custom" min="0" placeholder="0"/>
+                        <span class="dim-unit">cm</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Cargo Description <span style="color:var(--brown-mid);">*</span></label>
+                  <textarea
+                    class="form-control form-control-custom cargo-description"
+                    rows="6"
+                    placeholder="Describe your cargo in detail — e.g. contents, condition, quantity breakdown, any special notes for the handler…"
+                    required
+                  ></textarea>
+                  <div class="mt-1" style="font-size:0.77rem;color:var(--text-muted);">Be as specific as possible. This helps our team handle your cargo safely.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shipping Speed -->
+            <div class="cargo-section border-bottom" style="border-color:var(--border);">
+              <h5 class="fw-700 mb-1" style="color:var(--brown);"><i class="fas fa-plane me-2"></i>Shipping Speed</h5>
+              <p class="mb-4" style="font-size:0.85rem;color:var(--text-muted);">Choose how quickly you need your cargo delivered.</p>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <input type="radio" class="btn-check" name="shippingSpeed" id="speedStandard" value="standard" checked/>
+                  <label class="btn btn-outline-brown w-100 text-start py-3 px-4" for="speedStandard">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="fas fa-calendar-alt" style="font-size:1.1rem;"></i>
+                      <div>
+                        <div class="fw-700">Standard</div>
+                        <div style="font-size:0.78rem;opacity:0.75;">5–7 business days · $45/kg</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <input type="radio" class="btn-check" name="shippingSpeed" id="speedExpress" value="express"/>
+                  <label class="btn btn-outline-brown w-100 text-start py-3 px-4" for="speedExpress">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="fas fa-bolt" style="font-size:1.1rem;"></i>
+                      <div>
+                        <div class="fw-700">Express</div>
+                        <div style="font-size:0.78rem;opacity:0.75;">2–3 business days · $65/kg</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insurance & Special Handling -->
+            <div class="cargo-section border-bottom" style="border-color:var(--border);">
+              <h5 class="fw-700 mb-1" style="color:var(--brown);"><i class="fas fa-shield-alt me-2"></i>Protection &amp; Handling</h5>
+              <p class="mb-4" style="font-size:0.85rem;color:var(--text-muted);">Optional add-ons to keep your shipment safe.</p>
+
+              <label class="check-card" for="insuranceCheck">
+                <input class="form-check-input" type="checkbox" id="insuranceCheck" value="yes"/>
+                <div class="check-card-label">
+                  <strong><i class="fas fa-umbrella me-1"></i> Cargo Insurance</strong>
+                  <span>Protect your shipment's full value for an additional 5% of declared cargo value.</span>
+                </div>
+              </label>
+
+              <label class="check-card" for="fragile">
+                <input class="form-check-input" type="checkbox" id="fragile" value="fragile"/>
+                <div class="check-card-label">
+                  <strong><i class="fas fa-wine-glass me-1"></i> Fragile Handling</strong>
+                  <span>Extra care and protective packaging applied throughout transit.</span>
+                </div>
+              </label>
+
+              <label class="check-card" for="signature">
+                <input class="form-check-input" type="checkbox" id="signature" value="signature"/>
+                <div class="check-card-label">
+                  <strong><i class="fas fa-signature me-1"></i> Signature on Delivery</strong>
+                  <span>Recipient must sign to confirm receipt. Recommended for high-value items.</span>
+                </div>
+              </label>
+
+              <div class="mt-4">
+                <label class="form-label fw-700">Additional Notes <span class="text-muted" style="font-weight:400;">(Optional)</span></label>
+                <textarea class="form-control form-control-custom" rows="3" placeholder="Any other special requests or instructions for our team…"></textarea>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-3 mt-2">
+              <button type="reset" class="btn-outline-brown flex-grow-1" style="padding:0.85rem 1.5rem;">
+                <i class="fas fa-undo me-2"></i>Clear Form
+              </button>
+              <button type="submit" class="btn-primary-custom flex-grow-1" style="justify-content:center;">
+                <i class="fas fa-paper-plane me-2"></i>Submit Cargo Request
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="row mt-5 g-4">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-xs h-100 p-4" style="background:var(--cream);">
+              <div class="mb-3" style="font-size:2.5rem;color:var(--brown);">
+                <i class="fas fa-shipping-fast"></i>
+              </div>
+              <h6 class="fw-700" style="color:var(--brown);">Fast Delivery</h6>
+              <p class="small text-muted">Same-day processing with multiple delivery options available.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-xs h-100 p-4" style="background:var(--cream);">
+              <div class="mb-3" style="font-size:2.5rem;color:var(--brown);">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h6 class="fw-700" style="color:var(--brown);">Fully Insured</h6>
+              <p class="small text-muted">All shipments are tracked and insured for your peace of mind.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer style="background:var(--brown);color:var(--white);padding:3rem 0;text-align:center;margin-top:4rem;">
+  <div class="container">
+    <p class="mb-2">© 2026 Mideye Travel Agency. All rights reserved.</p>
+    <p class="small" style="opacity:0.7;">Galkacyo, Somalia | info@mideye.so</p>
+  </div>
+</footer>
+
+<!-- Bootstrap 5 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Backend API Integration -->
+<script src="../api.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ── Auto-detect active nav link ──
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+
+    // ── Navbar stays solid on inner pages ──
+    const navbar = document.getElementById('mainNavbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+    }, { passive: true });
+  });
+</script>
+</body>
+</html>

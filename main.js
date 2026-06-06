@@ -64,6 +64,44 @@ navLinks.forEach(link => {
   if (link.getAttribute('data-page') === currentPage) link.classList.add('active');
 });
 
+// ── Role-based Dashboard nav item ─────────────────────────────────────────────
+(function initDashboardNav() {
+  try {
+    const token = localStorage.getItem('mideye_token');
+    const user  = JSON.parse(localStorage.getItem('mideye_user') || 'null');
+
+    const dashItem  = document.getElementById('navDashboardItem');
+    const dashLink  = document.getElementById('navDashboardLink');
+    const authBtns  = document.getElementById('navAuthButtons');
+
+    if (!dashItem || !dashLink) return;
+
+    if (token && user) {
+      // Show Dashboard link pointing to the right dashboard for this role
+      const dashHref = user.role === 'admin' ? 'admin.html' : 'user-dashboard.html';
+      dashItem.style.display = '';
+      dashLink.href = dashHref;
+
+      // Replace Login / Register with first name + Logout
+      if (authBtns) {
+        authBtns.innerHTML = `
+          <span class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;pointer-events:none;opacity:0.85;">
+            <i class="fas fa-user-circle me-1"></i>${(user.full_name || 'User').split(' ')[0]}
+          </span>
+          <button onclick="mideyeLogout()" class="btn-gold-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;border:none;cursor:pointer;">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
+          </button>`;
+      }
+    }
+  } catch (e) {}
+})();
+
+window.mideyeLogout = function () {
+  localStorage.removeItem('mideye_token');
+  localStorage.removeItem('mideye_user');
+  window.location.reload();
+};
+
 /* ─────────────────────────────────────────────
    3. COUNTER ANIMATION
 ───────────────────────────────────────────── */

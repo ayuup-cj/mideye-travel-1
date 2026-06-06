@@ -17,7 +17,8 @@
   --cream:        #fdf7ed;
   --cream-2:      #f9f0dc;
   --white:        #ffffff;
-  --off-white:    #fafaf8;
+  --off-white:    #f4ede0;   /* warmer, cream-tinted page background */
+  --page-bg:      #f2e8d8;   /* slightly deeper warm tone for inner pages */
 
   /* Text */
   --text-primary:   #1a0803;
@@ -65,6 +66,11 @@ body {
   overflow-x: hidden;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Inner page warm background (applied to pages without a full hero) */
+body.inner-page {
+  background: var(--page-bg);
 }
 
 /* ── 3. TYPOGRAPHY ── */
@@ -225,14 +231,34 @@ button { font-family: var(--font-body); cursor: pointer; }
   top: 0; left: 0; right: 0;
   z-index: 1000;
   padding: 1.2rem 0;
-  transition: all var(--t-slow) var(--ease);
+  transition: background var(--t-slow) var(--ease),
+              box-shadow var(--t-slow) var(--ease),
+              padding var(--t-slow) var(--ease),
+              backdrop-filter var(--t-slow) var(--ease);
 }
-#mainNavbar.scrolled {
-  background: rgba(28, 8, 3, 0.96);
+
+/* Transparent state — for homepage hero only */
+#mainNavbar.hero-nav {
+  background: transparent;
+}
+
+/* Scrolled / solid state — for inner pages + after scroll */
+#mainNavbar.scrolled,
+#mainNavbar.solid {
+  background: rgba(28, 8, 3, 0.97);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 0.7rem 0;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.28);
+}
+
+/* Default: inner pages get solid immediately */
+#mainNavbar:not(.hero-nav) {
+  background: rgba(28, 8, 3, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 0.8rem 0;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.22);
 }
 
 .nav-brand {
@@ -278,8 +304,28 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 2px;
   transition: all var(--t-mid) var(--ease-back);
 }
-.nav-link-custom:hover::after, .nav-link-custom.active::after { left: 0.95rem; right: 0.95rem; }
-.nav-link-custom:hover, .nav-link-custom.active { color: var(--white) !important; }
+.nav-link-custom:hover::after,
+.nav-link-custom.active::after { left: 0.95rem; right: 0.95rem; }
+
+.nav-link-custom:hover,
+.nav-link-custom.active { color: var(--white) !important; }
+
+/* Active link: gold underline + slight gold tint */
+.nav-link-custom.active {
+  color: var(--gold) !important;
+  background: rgba(254,230,133,0.1);
+}
+.nav-link-custom.active::after {
+  background: var(--gold);
+}
+
+/* Navbar right-side buttons: ensure Register never clips the edge */
+.navbar-collapse .d-flex {
+  padding-right: 0.25rem;
+}
+.navbar-collapse .d-flex a:last-child {
+  margin-right: 0.25rem;
+}
 
 .navbar-toggler-custom {
   background: none;
@@ -955,7 +1001,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   box-shadow: 0 0 0 3.5px rgba(68,19,6,0.08);
 }
 .form-control-custom.is-invalid { border-color: #e53e3e; background: #fff5f5; }
-.form-control-custom::placeholder { color: rgba(106,66,58,0.35); }
+.form-control-custom::placeholder { color: rgba(68,19,6,0.48); }
+.form-control-custom::-moz-placeholder { color: rgba(68,19,6,0.48); opacity: 1; }
+textarea.form-control-custom::placeholder { color: rgba(68,19,6,0.48); }
 
 /* Select custom */
 .form-select-custom {
@@ -2009,4 +2057,503 @@ button { font-family: var(--font-body); cursor: pointer; }
     border-radius: 0 0 var(--r-lg) var(--r-lg);
     margin: 0 -12px;
   }
+}
+/* ═══════════════════════════════════════════════════════════════
+   MIDEYE – MOBILE RESPONSIVENESS FIX
+   Append this block at the very end of style.css
+   Fixes: horizontal overflow, hero bleed, navbar, toast, buttons
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── FIX 1: Hard stop all horizontal overflow at root level ── */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── FIX 2: Universal box-sizing + overflow guard ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  max-width: 100%;          /* nothing can be wider than its parent */
+}
+
+/* ── FIX 3: Hero background layer – scale animation was
+   pushing the layer wider than the viewport on mobile ── */
+.hero-section {
+  overflow: hidden;         /* clip the animated bg layer */
+  width: 100%;
+}
+
+.hero-bg-layer {
+  /* Keep animation but contain it strictly inside the section */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* Disable the translateX that bleeds off-screen on narrow viewports */
+}
+
+@keyframes heroScale {
+  from { transform: scale(1.0); }   /* removed translateX(-1.5%) */
+  to   { transform: scale(1.06); }  /* only scale, no horizontal shift */
+}
+
+/* ── FIX 4: Navbar – toggler & collapse menu overflow ── */
+#mainNavbar {
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Mobile collapse menu must not exceed viewport */
+#mobileNavMenu,
+.navbar-collapse {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ── FIX 5: Toast notification – was translateX(120%)
+   which adds invisible overflow space on the right ── */
+.toast-custom {
+  right: 1rem;
+  left: 1rem;               /* keep it on-screen on mobile */
+  min-width: unset;
+  width: auto;
+  max-width: calc(100vw - 2rem);
+  /* Use a Y-axis slide instead of X to avoid overflow */
+  transform: translateY(120%);
+  bottom: 1rem;
+}
+.toast-custom.show {
+  transform: translateY(0);
+}
+
+/* ── FIX 6: Search strip negative top margin
+   can cause container to overflow on small screens ── */
+.search-strip {
+  margin-top: 0;            /* reset the -60px pull-up on mobile (overridden below) */
+}
+
+/* ── FIX 7: AOS translateX animations cause horizontal
+   overflow before elements animate in ── */
+[data-aos="fade-left"],
+[data-aos="fade-right"] {
+  overflow: hidden;         /* clip the pre-animation offset */
+}
+
+/* Constrain the X-offset so off-screen content doesn't expand scrollWidth */
+[data-aos="fade-left"]  { transform: translateX(20px); }
+[data-aos="fade-right"] { transform: translateX(-20px); }
+
+/* ── FIX 8: Hero float card animation – rotate() can create
+   sub-pixel overflow on narrow screens ── */
+@keyframes cardFloat {
+  0%,100% { transform: translateY(0); }
+  33%     { transform: translateY(-10px); }
+  66%     { transform: translateY(-5px); }
+}
+
+/* ── FIX 9: Hero content container padding ── */
+.hero-content {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── FIX 10: Images – make sure every image scales ── */
+img,
+video,
+iframe,
+embed,
+object {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── FIX 11: Containers – never exceed viewport ── */
+.container,
+.container-fluid,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl {
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* ── FIX 12: Tables – horizontal scroll inside, not the page ── */
+.admin-table,
+table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE BREAKPOINTS  (max-width: 767px)
+═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Navbar */
+  #mainNavbar .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .navbar-collapse {
+    background: rgba(28, 8, 3, 0.97);
+    padding: 1rem;
+    border-radius: 0 0 14px 14px;
+    margin: 0;              /* remove any negative margin */
+    width: 100%;
+  }
+  .navbar-nav {
+    width: 100%;
+  }
+  #mainNavbar .d-flex.gap-2 {
+    flex-direction: column;
+    width: 100%;
+  }
+  #mainNavbar .btn-outline-custom,
+  #mainNavbar .btn-gold-custom {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Hero section */
+  .hero-section {
+    min-height: 100svh;     /* safe-area aware on iOS */
+  }
+  .hero-title {
+    font-size: clamp(2rem, 8vw, 3rem);
+    letter-spacing: -0.02em;
+  }
+  .hero-subtitle {
+    font-size: 0.97rem;
+    max-width: 100%;
+  }
+  .hero-tagline {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+  .hero-cta-group {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .hero-stats-strip {
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  .hss-num { font-size: 1.5rem; }
+  .hss-divider { height: 32px; }
+
+  /* Float card hidden on mobile already via d-none d-lg-block,
+     but guard against any leakage */
+  .hero-float-card {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Search strip */
+  .search-strip {
+    margin-top: 1.5rem;
+    border-radius: 14px;
+    padding: 1.2rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .search-field-group {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .btn-search-main {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Buttons – all full-width on mobile */
+  .btn-primary-custom,
+  .btn-gold-custom,
+  .btn-outline-custom,
+  .btn-outline-brown {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Stats section cards */
+  .stat-card-fancy {
+    padding: 1.8rem 1rem;
+  }
+
+  /* Service cards */
+  .service-card {
+    padding: 1.5rem;
+  }
+
+  /* Why-us section */
+  .why-image-col img {
+    height: 260px;
+  }
+
+  /* Tracking box */
+  .tracking-box {
+    padding: 1.8rem 1.2rem;
+    border-radius: 14px;
+  }
+  .track-input-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .track-input-group .btn-gold-custom {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Testimonial cards */
+  .testi-card {
+    padding: 1.5rem;
+  }
+
+  /* Auth card */
+  .auth-card {
+    max-width: 100%;
+    border-radius: 16px;
+  }
+  .auth-card-top,
+  .auth-card-body {
+    padding: 1.5rem;
+  }
+
+  /* Form card */
+  .form-card {
+    padding: 1.4rem;
+    border-radius: 14px;
+  }
+
+  /* Admin sidebar */
+  .admin-sidebar {
+    transform: translateX(-260px);
+    z-index: 300;
+  }
+  .admin-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .admin-main {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+  .admin-tab-pane {
+    padding: 1rem;
+  }
+
+  /* Admin stat cards */
+  .admin-stat {
+    padding: 1rem;
+  }
+  .as-value { font-size: 1.4rem; }
+
+  /* Topbar */
+  .admin-topbar {
+    padding: 0.75rem 1rem;
+  }
+  .topbar-search { display: none; }
+
+  /* Footer */
+  .site-footer {
+    padding: 3rem 0 0;
+  }
+  .footer-brand-col {
+    margin-bottom: 2rem;
+  }
+  .footer-desc {
+    max-width: 100%;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  /* Destination image cards */
+  .section-pad { padding: 3rem 0; }
+
+  /* Toast – bottom of screen, full-width */
+  .toast-custom {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    min-width: unset;
+    width: auto;
+  }
+
+  /* Cargo type grid */
+  .cargo-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Progress tracker */
+  .progress-tracker {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SMALL MOBILE  (max-width: 480px)
+═══════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* Base font scaling */
+  html { font-size: 15px; }
+
+  /* Hero */
+  .hero-title { font-size: 2rem; }
+  .hero-content { padding-top: 80px; }
+
+  /* Navbar brand text slightly smaller */
+  .nav-brand-text { font-size: 1.25rem; }
+  .nav-brand-icon { width: 34px; height: 34px; font-size: 0.95rem; }
+
+  /* Section titles */
+  .section-title { font-size: 1.75rem; }
+
+  /* Float card elements */
+  .hfc-code { font-size: 1.8rem; }
+  .hfc-price { font-size: 1.4rem; }
+
+  /* Search strip tabs – wrap naturally */
+  .search-strip-tabs {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  /* Admin cards */
+  .admin-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .admin-card-header .ac-actions,
+  .admin-card-header > div {
+    width: 100%;
+  }
+  .admin-search-input {
+    width: 100%;
+  }
+
+  /* Donut chart */
+  .donut-wrap { width: 120px; height: 120px; }
+
+  /* Destination image cards – taller for portrait */
+  [onclick] img[style*="height:220px"] {
+    height: 180px !important;
+  }
+
+  /* CTA banner buttons */
+  [style*="display:flex;gap:1rem;justify-content:center"] {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 1rem;
+  }
+
+  /* Footer socials */
+  .footer-socials { flex-wrap: wrap; }
+}
+
+/* ═══════════════════════════════════════════
+   VERY SMALL  (max-width: 360px)
+═══════════════════════════════════════════ */
+@media (max-width: 360px) {
+  html { font-size: 14px; }
+  .hero-title { font-size: 1.75rem; }
+  .section-title { font-size: 1.55rem; }
+  .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .form-card, .auth-card-body, .auth-card-top { padding: 1.1rem; }
+  .cargo-type-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   INNER PAGE GLOBAL ENHANCEMENTS
+   Applied to booking, cargo, tracking,
+   login, register — any non-hero page.
+═══════════════════════════════════════════ */
+
+/* Bootstrap .card on inner pages — elevated, warm */
+body.inner-page .card {
+  border: 1px solid rgba(68,19,6,0.09);
+  box-shadow: 0 4px 24px rgba(68,19,6,0.08), 0 1px 4px rgba(68,19,6,0.05);
+  border-radius: var(--r-lg);
+  transition: box-shadow var(--t-mid) var(--ease);
+}
+body.inner-page .card:hover {
+  box-shadow: 0 8px 36px rgba(68,19,6,0.13), 0 2px 8px rgba(68,19,6,0.07);
+}
+
+/* Form card padding comfort */
+body.inner-page .card.p-5 {
+  padding: 2.5rem !important;
+}
+@media (max-width: 576px) {
+  body.inner-page .card.p-5 { padding: 1.5rem !important; }
+}
+
+/* Section heading dividers on inner pages */
+body.inner-page h5.fw-700 {
+  padding-bottom: 0.5rem;
+}
+
+/* Form labels: slightly bolder for readability */
+body.inner-page .form-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.45rem;
+}
+
+/* Inner page main spacing */
+body.inner-page main {
+  background: transparent;
+}
+
+/* Page header area on inner pages */
+body.inner-page .text-center.mb-5 .section-title {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+
+/* Tracking page — footer info card */
+body.inner-page .shadow-xs {
+  box-shadow: 0 2px 16px rgba(68,19,6,0.08) !important;
+}
+
+/* Info cards row at bottom of forms */
+body.inner-page .row.mt-5.g-4 .card {
+  transition: transform var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease);
+}
+body.inner-page .row.mt-5.g-4 .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(68,19,6,0.14) !important;
+}
+
+/* ── Shared active-nav script result highlight ── */
+.nav-link-custom.active {
+  color: var(--gold) !important;
+  background: rgba(254,230,133,0.12);
 }
