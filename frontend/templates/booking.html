@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Flight | Mideye Travel Agency</title>
+  <meta name="description" content="Book your domestic flight with Mideye Travel Agency in Galkacyo, Somalia."/>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Master CSS -->
+  <link href="../css/style.css" rel="stylesheet"/>
+  <link href="../css/flights.css" rel="stylesheet"/>
+</head>
+<body class="inner-page">
+
+<!-- ═══════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════ -->
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom active" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+        <li class="nav-item" id="navDashboardItem" style="display:none;">
+          <a class="nav-link-custom" id="navDashboardLink" href="#"><i class="fas fa-th-large me-1"></i>Dashboard</a>
+        </li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0" id="navAuthButtons">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom nav-register-btn" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<main style="padding-top:7rem;padding-bottom:4rem;">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+      <span class="section-eyebrow"><i class="fas fa-ticket-alt me-2"></i>Flight Booking</span>
+      <h1 class="section-title mt-3">Book Your Domestic Flight</h1>
+      <p class="section-desc mx-auto">Choose your route, departure date, and traveler details to reserve your flight instantly.</p>
+    </div>
+
+    <!-- ═══ SEARCH & FILTER PANEL ═══ -->
+    <section class="flights-search-section" aria-label="Search available flights">
+      <div class="flights-search-panel">
+        <div class="flights-search-panel__title">
+          <div class="flights-search-panel__title-icon"><i class="fas fa-search"></i></div>
+          <div>
+            <h2>Search Airlines</h2>
+            <p class="section-desc mb-0" style="max-width:none;font-size:0.9rem;">Find available domestic flights across Somalia's leading carriers.</p>
+          </div>
+        </div>
+
+        <div class="flights-filter-grid">
+          <div class="flights-filter-field">
+            <label for="filterDeparture">Departure City</label>
+            <select id="filterDeparture" class="form-control form-control-custom">
+              <option value="">All cities</option>
+              <option value="GLK">Galkacyo (GLK)</option>
+              <option value="MGQ">Mogadishu (MGQ)</option>
+              <option value="HGA">Hargeisa (HGA)</option>
+              <option value="KSM">Kismayo (KSM)</option>
+              <option value="BDI">Baidoa (BDI)</option>
+            </select>
+          </div>
+          <div class="flights-filter-field">
+            <label for="filterDestination">Destination City</label>
+            <select id="filterDestination" class="form-control form-control-custom">
+              <option value="">All cities</option>
+              <option value="GLK">Galkacyo (GLK)</option>
+              <option value="MGQ">Mogadishu (MGQ)</option>
+              <option value="HGA">Hargeisa (HGA)</option>
+              <option value="KSM">Kismayo (KSM)</option>
+              <option value="BDI">Baidoa (BDI)</option>
+            </select>
+          </div>
+          <div class="flights-filter-field">
+            <label for="filterAirline">Airline</label>
+            <select id="filterAirline" class="form-control form-control-custom">
+              <option value="">All airlines</option>
+              <option value="somali-airlines">Somali Airlines</option>
+              <option value="daallo-airlines">Daallo Airlines</option>
+              <option value="freedom-airline">Freedom Airline</option>
+              <option value="jubba-airways">Jubba Airways</option>
+              <option value="african-express">African Express</option>
+            </select>
+          </div>
+          <div class="flights-filter-field">
+            <label for="filterClass">Class Type</label>
+            <select id="filterClass" class="form-control form-control-custom">
+              <option value="">All classes</option>
+              <option value="economy">Economy</option>
+              <option value="business">Business</option>
+            </select>
+          </div>
+          <div class="flights-filter-field">
+            <label for="filterDate">Travel Date</label>
+            <input type="date" id="filterDate" class="form-control form-control-custom"/>
+          </div>
+          <div class="flights-filter-field flights-filter-actions">
+            <button type="button" id="filterReset" class="flights-filter-reset">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+          </div>
+          <div class="flights-filter-field flights-filter-field--wide">
+            <label for="filterSearch">Search Flights</label>
+            <input type="text" id="filterSearch" class="form-control form-control-custom" placeholder="Search by airline, route, flight number…"/>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FLIGHT RESULTS ═══ -->
+    <section class="flights-results-section" id="flightsResults" aria-label="Available flights">
+      <div class="flights-results-header">
+        <h2>Available Flights</h2>
+        <span id="flightsCount" class="flights-results-count">Loading…</span>
+      </div>
+
+      <div id="flightsLoader" class="flights-loader" aria-hidden="true">
+        <div class="flights-loader__spinner" role="status"></div>
+        <p class="flights-loader__text">Searching available flights…</p>
+      </div>
+
+      <div id="flightsList" class="flights-list" aria-live="polite"></div>
+
+      <div id="flightsEmpty" class="flights-empty" aria-hidden="true">
+        <div class="flights-empty__icon"><i class="fas fa-plane-slash"></i></div>
+        <h3 class="flights-empty__title">No flights found</h3>
+        <p class="flights-empty__desc">Try adjusting your filters or search terms to discover more routes.</p>
+        <button type="button" class="btn-outline-brown" onclick="document.getElementById('filterReset').click()">
+          <i class="fas fa-undo me-2"></i>Clear Filters
+        </button>
+      </div>
+    </section>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Quick search CTA -->
+        <div class="text-center mb-4">
+          <p class="text-muted mb-3">Ready to complete your reservation? Select a flight above or fill in the form below.</p>
+          <button type="button" class="btn-gold-custom" data-bs-toggle="modal" data-bs-target="#bookingModal">
+            <i class="fas fa-edit me-2"></i>Open Booking Form
+          </button>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="row mt-2 g-4">
+          <div class="col-md-4">
+            <div class="card border-0 shadow-xs h-100 p-4 text-center" style="background:var(--cream);">
+              <div class="mb-3" style="font-size:2.5rem;color:var(--brown);">
+                <i class="fas fa-clock"></i>
+              </div>
+              <h6 class="fw-700" style="color:var(--brown);">Fast Booking</h6>
+              <p class="small text-muted">Complete your booking in minutes with our simple process.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 shadow-xs h-100 p-4 text-center" style="background:var(--cream);">
+              <div class="mb-3" style="font-size:2.5rem;color:var(--brown);">
+                <i class="fas fa-lock"></i>
+              </div>
+              <h6 class="fw-700" style="color:var(--brown);">Secure Payment</h6>
+              <p class="small text-muted">Your payment information is encrypted and protected.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 shadow-xs h-100 p-4 text-center" style="background:var(--cream);">
+              <div class="mb-3" style="font-size:2.5rem;color:var(--brown);">
+                <i class="fas fa-headset"></i>
+              </div>
+              <h6 class="fw-700" style="color:var(--brown);">24/7 Support</h6>
+              <p class="small text-muted">Our team is always ready to assist you with any questions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══ BOOKING MODAL ═══ -->
+<div class="modal fade booking-modal" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bookingModalLabel">
+          <i class="fas fa-plane-departure me-2"></i>Complete Your Booking
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="selectedFlightSummary" class="selected-flight-summary"></div>
+
+        <form id="flightBookingForm" novalidate>
+          <!-- Trip Type -->
+          <div class="mb-4">
+            <label class="form-label fw-700 mb-3">Trip Type</label>
+            <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" name="tripType" id="tripOneWay" value="oneway" checked/>
+              <label class="btn btn-outline-brown w-50" for="tripOneWay">One Way</label>
+              <input type="radio" class="btn-check" name="tripType" id="tripRoundtrip" value="roundtrip"/>
+              <label class="btn btn-outline-brown w-50" for="tripRoundtrip">Round Trip</label>
+            </div>
+          </div>
+
+          <!-- Route Selection -->
+          <div class="row mb-4 g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-700">Departure City</label>
+              <select class="form-control form-control-custom" required>
+                <option value="">Select city</option>
+                <option value="GLK">Galkacyo (GLK)</option>
+                <option value="MGQ">Mogadishu (MGQ)</option>
+                <option value="HGA">Hargeisa (HGA)</option>
+                <option value="KSM">Kismayo (KSM)</option>
+                <option value="BDI">Baidoa (BDI)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-700">Arrival City</label>
+              <select class="form-control form-control-custom" required>
+                <option value="">Select city</option>
+                <option value="MGQ">Mogadishu (MGQ)</option>
+                <option value="GLK">Galkacyo (GLK)</option>
+                <option value="HGA">Hargeisa (HGA)</option>
+                <option value="KSM">Kismayo (KSM)</option>
+                <option value="BDI">Baidoa (BDI)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dates -->
+          <div class="row mb-4 g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-700">Departure Date</label>
+              <input type="date" class="form-control form-control-custom" required/>
+            </div>
+            <div class="col-md-6" id="returnDateField" style="display:none;">
+              <label class="form-label fw-700">Return Date</label>
+              <input type="date" class="form-control form-control-custom"/>
+            </div>
+          </div>
+
+          <!-- Passengers -->
+          <div class="row mb-4 g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-700">Adults</label>
+              <select class="form-control form-control-custom" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-700">Children</label>
+              <select class="form-control form-control-custom">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-700">Infants</label>
+              <select class="form-control form-control-custom">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Class Selection -->
+          <div class="mb-4">
+            <label class="form-label fw-700 mb-3">Cabin Class</label>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <input type="radio" class="btn-check" name="cabinClass" id="classEconomy" value="economy" checked/>
+                <label class="btn btn-outline-brown w-100 text-start" for="classEconomy">
+                  <i class="fas fa-chair me-2"></i> Economy
+                </label>
+              </div>
+              <div class="col-md-6">
+                <input type="radio" class="btn-check" name="cabinClass" id="classBusiness" value="business"/>
+                <label class="btn btn-outline-brown w-100 text-start" for="classBusiness">
+                  <i class="fas fa-crown me-2"></i> Business
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passenger Details -->
+          <div class="mb-4 pb-3 border-bottom" style="border-color:var(--border);">
+            <h5 class="fw-700 mb-3" style="color:var(--brown);">Primary Passenger</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control form-control-custom" placeholder="Your first name" required/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control form-control-custom" placeholder="Your last name" required/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control form-control-custom" placeholder="your@email.com" required/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control form-control-custom" placeholder="+252 ..." required/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Special Requests -->
+          <div class="mb-4">
+            <label class="form-label fw-700">Special Requests (Optional)</label>
+            <textarea class="form-control form-control-custom" rows="3" placeholder="Any special requests or meal preferences?"></textarea>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-3">
+            <button type="reset" class="btn-outline-brown flex-grow-1">Clear Form</button>
+            <button type="submit" class="btn-primary-custom flex-grow-1">
+              <i class="fas fa-paper-plane me-2"></i>Submit Booking
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="background:var(--brown);color:var(--white);padding:3rem 0;text-align:center;margin-top:4rem;">
+  <div class="container">
+    <p class="mb-2">© 2026 Mideye Travel Agency. All rights reserved.</p>
+    <p class="small" style="opacity:0.7;">Galkacyo, Somalia | info@mideye.so</p>
+  </div>
+</footer>
+
+<!-- Bootstrap 5 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Backend API Integration -->
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/flights.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ── Auto-detect active nav link ──
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+
+    // ── Navbar stays solid on inner pages — scroll only adds shadow depth ──
+    const navbar = document.getElementById('mainNavbar');
+    window.addEventListener('scroll', () => {
+      // Never remove the solid background on inner pages
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+    }, { passive: true });
+
+    // ── Toggle return date field ──
+    const tripTypeRadios = document.querySelectorAll('input[name="tripType"]');
+    const returnDateField = document.getElementById('returnDateField');
+    tripTypeRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        returnDateField.style.display = radio.value === 'roundtrip' ? 'block' : 'none';
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Cargo | Mideye Travel Agency</title>
+  <meta name="description" content="Track your cargo shipment in real-time with Mideye Travel Agency."/>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Master CSS -->
+  <link href="../css/style.css" rel="stylesheet"/>
+  <link href="../css/tracking.css" rel="stylesheet"/>
+</head>
+<body class="inner-page">
+
+<!-- ═══════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════ -->
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom active" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+        <li class="nav-item" id="navDashboardItem" style="display:none;">
+          <a class="nav-link-custom" id="navDashboardLink" href="#"><i class="fas fa-th-large me-1"></i>Dashboard</a>
+        </li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0" id="navAuthButtons">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom nav-register-btn" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<main style="padding-top:7rem;padding-bottom:4rem;">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+      <span class="section-eyebrow"><i class="fas fa-map-pin me-2"></i>Cargo Tracking</span>
+      <h1 class="section-title mt-3">Track Your Shipment</h1>
+      <p class="section-desc mx-auto">Enter your tracking number to see real-time updates on your cargo location and delivery status.</p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <!-- Tracking Search -->
+        <div class="card border-0 shadow-sm p-4 p-md-5 mb-4" style="background:var(--cream);border-radius:var(--r-lg);">
+          <form id="trackingForm">
+            <label class="form-label fw-700 mb-2" style="color:var(--brown);">Tracking Number</label>
+            <div class="input-group input-group-lg" style="border-radius:var(--r-md);overflow:hidden;">
+              <input
+                type="text"
+                class="form-control form-control-custom"
+                placeholder="e.g. MID-2026-001456 or ME-CG-20260519-FJ4Z"
+                id="trackingNumber"
+                required
+                autocomplete="off"
+              />
+              <button class="btn-primary-custom" type="submit" style="border-radius:0;padding:0.85rem 2rem;">
+                <i class="fas fa-search me-2"></i>Track
+              </button>
+            </div>
+            <div class="track-demo-hint mt-3">
+              <i class="fas fa-flask me-1"></i> Demo IDs — click to try:
+              <code data-demo-id="MID-2026-001456">MID-2026-001456</code>
+              or
+              <code data-demo-id="ME-CG-20260519-FJ4Z">ME-CG-20260519-FJ4Z</code>
+            </div>
+          </form>
+        </div>
+
+        <!-- Not found state -->
+        <div id="trackingNotFound" class="track-not-found" aria-live="polite">
+          <div class="track-not-found__icon"><i class="fas fa-box-open"></i></div>
+          <h3>No Shipment Found</h3>
+          <p>We couldn't find a shipment with ID <strong class="track-not-found__id"></strong>. Please check the number and try again.</p>
+          <button type="button" class="btn-outline-brown" onclick="document.getElementById('trackingNumber').focus()">
+            <i class="fas fa-redo me-2"></i>Try Again
+          </button>
+        </div>
+
+        <!-- Dynamic results (populated by tracking.js) -->
+        <div id="trackingResult" class="track-results" aria-live="polite"></div>
+
+        <!-- Support card -->
+        <div class="card border-0 shadow-xs mt-4 p-4" style="background:var(--cream);">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <div style="font-size:2rem;color:var(--brown);">
+                <i class="fas fa-headset"></i>
+              </div>
+            </div>
+            <div class="col">
+              <h6 class="fw-700 mb-1" style="color:var(--brown);">Need Help?</h6>
+              <p class="small text-muted mb-0">Our support team is available 24/7. Call +252 615 000000 or email info@mideye.so</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer style="background:var(--brown);color:var(--white);padding:3rem 0;text-align:center;margin-top:4rem;">
+  <div class="container">
+    <p class="mb-2">© 2026 Mideye Travel Agency. All rights reserved.</p>
+    <p class="small" style="opacity:0.7;">Galkacyo, Somalia | info@mideye.so</p>
+  </div>
+</footer>
+
+<!-- Bootstrap 5 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/tracking.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+
+    const navbar = document.getElementById('mainNavbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+    }, { passive: true });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="../css/admin-users.css" rel="stylesheet" />
+  <link href="../css/admin-receipts.css" rel="stylesheet" />
+
+  <!-- ── Auth guard: admin only ── -->
+  <script src="../js/auth-guard.js"></script>
+  <script>AuthGuard.requireAdmin();</script>
+
+  <style>
+    /* ── Variables ── */
+    :root {
+      --brown:       #441306;
+      --brown-dark:  #2c0b04;
+      --brown-mid:   #6b1e0d;
+      --gold:        #fee685;
+      --gold-dark:   #e8c945;
+      --cream:       #fdf7ed;
+      --cream-2:     #f9f0dc;
+      --white:       #ffffff;
+      --sidebar-w:   260px;
+      --topbar-h:    64px;
+      --shadow-sm:   0 2px 12px rgba(68,19,6,0.09);
+      --shadow-md:   0 6px 28px rgba(68,19,6,0.13);
+      --border:      rgba(68,19,6,0.10);
+      --r-sm:        8px;
+      --r-md:        14px;
+      --r-lg:        20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f4ede0;
+      color: var(--brown);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ══════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════ */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--brown);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-brand {
+      padding: 1.6rem 1.5rem 1.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .sidebar-brand-icon {
+      width: 40px; height: 40px;
+      background: var(--gold);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--brown);
+      font-size: 1.1rem;
+    }
+    .sidebar-brand-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.02em;
+    }
+    .sidebar-brand-text span { color: var(--gold); }
+    .sidebar-subtitle {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.1rem;
+    }
+
+    .sidebar-section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.35);
+      padding: 1.2rem 1.5rem 0.5rem;
+    }
+
+    .sidebar-nav { flex: 1; padding: 0.5rem 0; }
+    .nav-item-link {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 1.5rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 0;
+      transition: all 0.18s ease;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      position: relative;
+    }
+    .nav-item-link .nav-icon {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.07);
+      flex-shrink: 0;
+      transition: all 0.18s ease;
+    }
+    .nav-item-link:hover {
+      color: var(--white);
+      background: rgba(255,255,255,0.07);
+    }
+    .nav-item-link:hover .nav-icon { background: rgba(254,230,133,0.15); }
+    .nav-item-link.active {
+      color: var(--brown);
+      background: var(--gold);
+    }
+    .nav-item-link.active .nav-icon {
+      background: rgba(68,19,6,0.15);
+      color: var(--brown);
+    }
+    .nav-badge {
+      margin-left: auto;
+      background: rgba(254,230,133,0.2);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      min-width: 22px;
+      text-align: center;
+    }
+    .nav-item-link.active .nav-badge {
+      background: rgba(68,19,6,0.15);
+      color: var(--brown);
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .sidebar-avatar {
+      width: 36px; height: 36px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--brown);
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .sidebar-user-name { font-size: 0.85rem; font-weight: 600; color: var(--white); }
+    .sidebar-user-role { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+
+    /* ══════════════════════════════════════
+       MAIN AREA
+    ══════════════════════════════════════ */
+    #mainWrap {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    #topBar {
+      height: var(--topbar-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 1rem; }
+    #sidebarToggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--brown);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: var(--r-sm);
+    }
+    .page-title { font-size: 1.1rem; font-weight: 700; color: var(--brown); }
+    .page-subtitle { font-size: 0.78rem; color: rgba(68,19,6,0.5); margin-top: 0.1rem; }
+
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .topbar-time {
+      font-size: 0.8rem;
+      color: rgba(68,19,6,0.5);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    #refreshBtn {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      color: var(--brown);
+      padding: 0.45rem 1rem;
+      border-radius: var(--r-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.18s ease;
+    }
+    #refreshBtn:hover { background: var(--cream-2); }
+    .topbar-logout {
+      background: var(--brown);
+      color: var(--gold);
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: var(--r-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .topbar-logout:hover { background: var(--brown-mid); }
+
+    /* Main Content */
+    #content {
+      flex: 1;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* ── Sections ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Section Header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .section-heading { font-size: 1.5rem; font-weight: 700; color: var(--brown); }
+    .section-subheading { font-size: 0.82rem; color: rgba(68,19,6,0.55); margin-top: 0.2rem; }
+
+    /* ══════════════════════════════════════
+       STAT CARDS
+    ══════════════════════════════════════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
+    }
+    .stat-card.users::before   { background: linear-gradient(90deg, #441306, #8c3520); }
+    .stat-card.bookings::before { background: linear-gradient(90deg, #e8c945, #fee685); }
+    .stat-card.cargo::before   { background: linear-gradient(90deg, #6b1e0d, #b85a40); }
+    .stat-card.pending::before  { background: linear-gradient(90deg, #dc8f00, #ffc107); }
+
+    .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    .stat-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .stat-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(68,19,6,0.5); }
+    .stat-icon {
+      width: 42px; height: 42px;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .stat-card.users    .stat-icon { background: rgba(68,19,6,0.08);    color: var(--brown); }
+    .stat-card.bookings .stat-icon { background: rgba(254,230,133,0.4); color: #a07a00; }
+    .stat-card.cargo    .stat-icon { background: rgba(107,30,13,0.1);   color: var(--brown-mid); }
+    .stat-card.pending  .stat-icon { background: rgba(255,193,7,0.15);  color: #dc8f00; }
+
+    .stat-value {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--brown);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-footer { font-size: 0.77rem; color: rgba(68,19,6,0.45); }
+    .stat-value.loading-pulse { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ══════════════════════════════════════
+       CARDS / TABLES
+    ══════════════════════════════════════ */
+    .data-card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+    .data-card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: var(--cream);
+    }
+    .data-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--brown);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .data-card-title i { color: var(--brown-mid); }
+
+    .search-input {
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 0.4rem 0.85rem 0.4rem 2rem;
+      font-size: 0.82rem;
+      color: var(--brown);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.18s;
+      width: 200px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23441306' opacity='0.4'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 0.6rem center;
+      background-size: 0.85rem;
+    }
+    .search-input:focus { border-color: var(--brown); }
+
+    .table-wrap { overflow-x: auto; }
+    table.admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    table.admin-table thead th {
+      background: var(--cream);
+      color: rgba(68,19,6,0.6);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    table.admin-table tbody tr {
+      border-bottom: 1px solid rgba(68,19,6,0.05);
+      transition: background 0.15s;
+    }
+    table.admin-table tbody tr:last-child { border-bottom: none; }
+    table.admin-table tbody tr:hover { background: rgba(253,247,237,0.6); }
+    table.admin-table td {
+      padding: 0.9rem 1.25rem;
+      color: var(--brown);
+      vertical-align: middle;
+    }
+    .td-muted { color: rgba(68,19,6,0.55); font-size: 0.82rem; }
+    .td-bold  { font-weight: 600; }
+    .td-mono  { font-family: 'Courier New', monospace; font-size: 0.82rem; font-weight: 600; }
+
+    /* Loading state */
+    .table-loading {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: rgba(68,19,6,0.45);
+    }
+    .table-loading .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--brown);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 0.75rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .table-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: rgba(68,19,6,0.4);
+    }
+    .table-empty i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+
+    /* ── Badges ── */
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .badge-status::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .badge-pending    { background: rgba(255,193,7,0.15);  color: #a07200; }
+    .badge-confirmed  { background: rgba(25,135,84,0.12);  color: #0d6640; }
+    .badge-completed  { background: rgba(13,110,253,0.12); color: #084fc7; }
+    .badge-cancelled  { background: rgba(220,53,69,0.12);  color: #b02a37; }
+    .badge-received   { background: rgba(108,117,125,0.12);color: #495057; }
+    .badge-in-transit { background: rgba(255,193,7,0.15);  color: #a07200; }
+    .badge-arrived    { background: rgba(25,135,84,0.12);  color: #0d6640; }
+    .badge-admin      { background: rgba(68,19,6,0.1);     color: var(--brown); }
+    .badge-user       { background: rgba(108,117,125,0.1); color: #495057; }
+
+    /* ── Action button ── */
+    .btn-action {
+      border: none;
+      border-radius: var(--r-sm);
+      padding: 0.3rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s;
+    }
+    .btn-action-brown { background: var(--brown); color: var(--gold); }
+    .btn-action-brown:hover { background: var(--brown-mid); }
+    .btn-action-red   { background: rgba(220,53,69,0.1); color: #b02a37; }
+    .btn-action-red:hover { background: rgba(220,53,69,0.2); }
+
+    /* ── Status dropdown modal ── */
+    #statusModal { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; }
+    #statusModal.open { display:flex; }
+    .modal-box {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      padding: 2rem;
+      width: 360px;
+      max-width: 94vw;
+      box-shadow: var(--shadow-md);
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--brown); margin-bottom: 1.25rem; }
+    .modal-select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 0.6rem 0.85rem;
+      font-size: 0.9rem;
+      color: var(--brown);
+      margin-bottom: 1.25rem;
+      outline: none;
+    }
+    .modal-select:focus { border-color: var(--brown); }
+    .modal-btns { display:flex; gap:0.75rem; justify-content:flex-end; }
+    .modal-btn-cancel { background: var(--cream); border:1px solid var(--border); color:var(--brown); padding:0.5rem 1.2rem; border-radius:var(--r-sm); font-size:0.85rem; font-weight:600; cursor:pointer; }
+    .modal-btn-save   { background: var(--brown); border:none; color:var(--gold); padding:0.5rem 1.2rem; border-radius:var(--r-sm); font-size:0.85rem; font-weight:600; cursor:pointer; }
+    .modal-btn-save:hover { background:var(--brown-mid); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--brown);
+      color: var(--gold);
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--r-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      z-index: 2000;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #mainWrap { margin-left: 0; }
+      #sidebarToggle { display: block; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      #content { padding: 1.25rem; }
+      #topBar { padding: 0 1.25rem; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Dashboard quick-tables mini grid ── */
+    .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    @media(max-width:900px){ .dash-grid{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon"><i class="fas fa-plane"></i></div>
+    <div>
+      <div class="sidebar-brand-text">Mid<span>eye</span></div>
+      <div class="sidebar-subtitle">Admin Panel</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Main</div>
+    <a class="nav-item-link active" data-section="dashboard" onclick="navigate('dashboard', this)">
+      <span class="nav-icon"><i class="fas fa-th-large"></i></span>
+      Dashboard
+    </a>
+
+    <div class="sidebar-section-label">Management</div>
+    <a class="nav-item-link" data-section="users" onclick="navigate('users', this)">
+      <span class="nav-icon"><i class="fas fa-users"></i></span>
+      Users
+      <span class="nav-badge" id="badge-users">–</span>
+    </a>
+    <a class="nav-item-link" data-section="bookings" onclick="navigate('bookings', this)">
+      <span class="nav-icon"><i class="fas fa-plane-departure"></i></span>
+      Bookings
+      <span class="nav-badge" id="badge-bookings">–</span>
+    </a>
+    <a class="nav-item-link" data-section="cargo" onclick="navigate('cargo', this)">
+      <span class="nav-icon"><i class="fas fa-box"></i></span>
+      Cargo
+      <span class="nav-badge" id="badge-cargo">–</span>
+    </a>
+
+    <div class="sidebar-section-label">Site</div>
+    <a class="nav-item-link" href="index.html">
+      <span class="nav-icon"><i class="fas fa-globe"></i></span>
+      View Website
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebarName">Admin</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════
+     MAIN WRAP
+══════════════════════════════════════════ -->
+<div id="mainWrap">
+
+  <!-- Top Bar -->
+  <header id="topBar">
+    <div class="topbar-left">
+      <button id="sidebarToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-subtitle" id="pageSubtitle">Overview of all activity</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time"><i class="far fa-clock"></i><span id="clockDisplay"></span></div>
+      <button id="refreshBtn" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button class="topbar-logout" onclick="AuthGuard.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main id="content">
+
+    <!-- ══ SECTION: DASHBOARD ══ -->
+    <section id="sec-dashboard" class="section active">
+      <div class="section-header">
+        <div>
+          <div class="section-heading">Good to see you, Admin</div>
+          <div class="section-subheading">Here's what's happening with Mideye today.</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card users">
+          <div class="stat-top">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+          </div>
+          <div class="stat-value loading-pulse" id="stat-users">–</div>
+          <div class="stat-footer">Registered accounts</div>
+        </div>
+        <div class="stat-card bookings">
+          <div class="stat-top">
+            <div class="stat-label">Total Bookings</div>
+            <div class="stat-icon"><i class="fas fa-plane-departure"></i></div>
+          </div>
+          <div class="stat-value loading-pulse" id="stat-bookings">–</div>
+          <div class="stat-footer">Flight booking requests</div>
+        </div>
+        <div class="stat-card cargo">
+          <div class="stat-top">
+            <div class="stat-label">Total Cargo</div>
+            <div class="stat-icon"><i class="fas fa-box-open"></i></div>
+          </div>
+          <div class="stat-value loading-pulse" id="stat-cargo">–</div>
+          <div class="stat-footer">Shipment requests</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-top">
+            <div class="stat-label">Pending</div>
+            <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+          </div>
+          <div class="stat-value loading-pulse" id="stat-pending">–</div>
+          <div class="stat-footer">Bookings awaiting action</div>
+        </div>
+      </div>
+
+      <!-- Quick view mini tables -->
+      <div class="dash-grid">
+        <div class="data-card">
+          <div class="data-card-header">
+            <div class="data-card-title"><i class="fas fa-plane-departure"></i> Recent Bookings</div>
+            <a class="btn-action btn-action-brown" onclick="navigate('bookings', document.querySelector('[data-section=bookings]'))">View all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Passenger</th><th>Route</th><th>Status</th></tr>
+              </thead>
+              <tbody id="dash-bookings-body">
+                <tr><td colspan="3"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="data-card">
+          <div class="data-card-header">
+            <div class="data-card-title"><i class="fas fa-box"></i> Recent Cargo</div>
+            <a class="btn-action btn-action-brown" onclick="navigate('cargo', document.querySelector('[data-section=cargo]'))">View all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Tracking ID</th><th>Destination</th><th>Status</th></tr>
+              </thead>
+              <tbody id="dash-cargo-body">
+                <tr><td colspan="3"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: USERS ══ -->
+    <section id="sec-users" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-heading">Users Management</div>
+          <div class="section-subheading">View and manage all registered accounts</div>
+        </div>
+        <input type="text" class="search-input" id="search-users" placeholder="Search users…" oninput="filterTable('users-body', this.value, [1,2,3,4])">
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-users"></i> Users</div>
+          <span class="td-muted" id="users-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Role</th>
+                <th>Bookings ($)</th>
+                <th>Cargo</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-body">
+              <tr><td colspan="10"><div class="table-loading"><div class="spinner"></div>Loading users…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: BOOKINGS ══ -->
+    <section id="sec-bookings" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-heading">Bookings</div>
+          <div class="section-subheading">All flight booking requests</div>
+        </div>
+        <input type="text" class="search-input" id="search-bookings" placeholder="Search bookings…" oninput="filterTable('bookings-body', this.value, [0,1,2])">
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-plane-departure"></i> Bookings List</div>
+          <span class="td-muted" id="bookings-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Passenger</th>
+                <th>Route</th>
+                <th>Travel Date</th>
+                <th>Class</th>
+                <th>Passengers</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-body">
+              <tr><td colspan="8"><div class="table-loading"><div class="spinner"></div>Loading bookings…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: CARGO ══ -->
+    <section id="sec-cargo" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-heading">Cargo</div>
+          <div class="section-subheading">All cargo shipment requests</div>
+        </div>
+        <input type="text" class="search-input" id="search-cargo" placeholder="Search cargo…" oninput="filterTable('cargo-body', this.value, [0,1,2])">
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-box"></i> Cargo List</div>
+          <span class="td-muted" id="cargo-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Sender</th>
+                <th>Recipient</th>
+                <th>Route</th>
+                <th>Type</th>
+                <th>Weight</th>
+                <th>Speed</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cargo-body">
+              <tr><td colspan="9"><div class="table-loading"><div class="spinner"></div>Loading cargo…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /mainWrap -->
+
+<!-- ══ User Profile Modal ══ -->
+<div id="userProfileModal" role="dialog" aria-modal="true" aria-labelledby="userModalName">
+  <div class="user-modal">
+    <div class="user-modal__header">
+      <div class="user-modal__avatar" id="userModalAvatar">U</div>
+      <div class="user-modal__header-info">
+        <h2 id="userModalName">User Name</h2>
+        <p id="userModalEmail">user@email.com</p>
+      </div>
+      <button type="button" class="user-modal__close" onclick="closeUserProfileModal()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="user-modal__body" id="userProfileBody"></div>
+  </div>
+</div>
+
+<!-- ══ Receipt Modal ══ -->
+<div id="receiptModal" role="dialog" aria-modal="true" aria-labelledby="receiptModalTitle">
+  <div class="receipt-modal-wrap">
+    <div class="receipt-toolbar">
+      <div class="receipt-toolbar__title">
+        <i class="fas fa-receipt"></i>
+        <span id="receiptModalTitle">Official Receipt</span>
+      </div>
+      <div class="receipt-toolbar__actions">
+        <button type="button" class="receipt-tool-btn receipt-tool-btn--print" onclick="printReceipt()">
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button type="button" class="receipt-tool-btn receipt-tool-btn--pdf" onclick="downloadReceiptPdf()">
+          <i class="fas fa-file-pdf"></i> Save PDF
+        </button>
+        <button type="button" class="receipt-tool-btn receipt-tool-btn--close" onclick="closeReceiptModal()" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="receipt-scroll" id="receiptModalBody"></div>
+  </div>
+</div>
+
+<!-- ══ Status Update Modal ══ -->
+<div id="statusModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">Update Status</div>
+    <select class="modal-select" id="modalSelect"></select>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn-save"   onclick="saveStatus()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Toast ══ -->
+<div id="toast"></div>
+
+<!-- ══ Overlay for mobile sidebar ══ -->
+<div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99;" onclick="toggleSidebar()"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/admin-users.js"></script>
+<script src="../js/admin-receipts.js"></script>
+<script>
+'use strict';
+
+/* ─── Config ─────────────────────────────────────── */
+const API = 'http://localhost:5000/api';
+
+/* ─── State ──────────────────────────────────────── */
+let allBookings = [];
+let allCargo    = [];
+let allUsers    = [];
+let modalCtx    = {};  // { type: 'booking'|'cargo', id, currentStatus }
+
+/* ─── Auth Guard ─────────────────────────────────── */
+const token = localStorage.getItem('mideye_token');
+const user  = JSON.parse(localStorage.getItem('mideye_user') || 'null');
+
+if (!token || !user || user.role !== 'admin') {
+  window.location.href = 'login.html';
+}
+
+/* ─── Populate sidebar user ──────────────────────── */
+document.getElementById('sidebarName').textContent = user?.full_name || 'Admin';
+document.getElementById('sidebarAvatar').textContent = (user?.full_name || 'A')[0].toUpperCase();
+
+/* ─── Clock ──────────────────────────────────────── */
+const clockEl = document.getElementById('clockDisplay');
+const updateClock = () => {
+  clockEl.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+};
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ─── Navigation ─────────────────────────────────── */
+const sections = { dashboard: 'Overview of all activity', users: 'All registered accounts', bookings: 'All flight booking requests', cargo: 'All cargo shipments' };
+
+function navigate(sectionId, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item-link').forEach(a => a.classList.remove('active'));
+
+  document.getElementById('sec-' + sectionId)?.classList.add('active');
+  if (el) el.classList.add('active');
+
+  document.getElementById('pageTitle').textContent = sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+  document.getElementById('pageSubtitle').textContent = sections[sectionId] || '';
+
+  if (document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+}
+
+/* ─── Fetch Helper ───────────────────────────────── */
+async function apiFetch(endpoint) {
+  const res = await fetch(`${API}${endpoint}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+    throw new Error(`HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+/* ─── Toast ──────────────────────────────────────── */
+function showToast(msg, icon = 'fa-check-circle') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ─── Badge helpers ──────────────────────────────── */
+function bookingBadge(status) {
+  const map = { Pending: 'pending', Confirmed: 'confirmed', Completed: 'completed', Cancelled: 'cancelled' };
+  return `<span class="badge-status badge-${(map[status] || 'pending')}">${status}</span>`;
+}
+function cargoBadge(status) {
+  const map = { Received: 'received', 'In Transit': 'in-transit', Arrived: 'arrived', Cancelled: 'cancelled' };
+  return `<span class="badge-status badge-${(map[status] || 'received')}">${status}</span>`;
+}
+function roleBadge(role) {
+  return `<span class="badge-status badge-${role}">${role}</span>`;
+}
+function fmtDate(d) {
+  if (!d) return '–';
+  return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD STATS
+═══════════════════════════════════════════════ */
+async function loadStats() {
+  try {
+    const { data } = await apiFetch('/admin/stats');
+    const s = data.stats;
+    ['users','bookings','cargo','pending'].forEach(k => {
+      const el = document.getElementById('stat-' + k);
+      if (el) {
+        el.classList.remove('loading-pulse');
+        const key = k === 'pending' ? 'pending_bookings' : `total_${k}`;
+        el.textContent = (s[key] ?? 0).toLocaleString();
+      }
+    });
+    // update sidebar badges
+    document.getElementById('badge-users').textContent    = s.total_users    ?? '–';
+    document.getElementById('badge-bookings').textContent = s.total_bookings  ?? '–';
+    document.getElementById('badge-cargo').textContent    = s.total_cargo     ?? '–';
+  } catch (e) {
+    console.error('Stats error:', e);
+    ['users','bookings','cargo','pending'].forEach(k => {
+      const el = document.getElementById('stat-' + k);
+      if (el) { el.classList.remove('loading-pulse'); el.textContent = 'N/A'; }
+    });
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD USERS
+═══════════════════════════════════════════════ */
+async function loadUsers() {
+  const tbody = document.getElementById('users-body');
+  try {
+    const { data, count } = await apiFetch('/admin/users');
+    allUsers = data.users || [];
+    window.allUsers = allUsers;
+    document.getElementById('users-count').textContent = `${count} total`;
+    renderUsers(allUsers);
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load users. Check server connection.</div></td></tr>`;
+  }
+}
+
+function renderUsers(users) {
+  if (typeof renderEnhancedUsers === 'function') {
+    renderEnhancedUsers(users, allBookings, allCargo, esc, fmtDate, roleBadge);
+    return;
+  }
+  const tbody = document.getElementById('users-body');
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="table-empty"><i class="fas fa-users"></i>No users found.</div></td></tr>`;
+    return;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD BOOKINGS
+═══════════════════════════════════════════════ */
+async function loadBookings() {
+  const tbody = document.getElementById('bookings-body');
+  try {
+    const { data, count } = await apiFetch('/admin/bookings');
+    allBookings = data.bookings || [];
+    window.allBookings = allBookings;
+    document.getElementById('bookings-count').textContent = `${count} total`;
+    renderBookings(allBookings);
+    if (allUsers.length) renderUsers(allUsers);
+    renderDashBookings(allBookings.slice(0, 5));
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load bookings.</div></td></tr>`;
+    document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+  }
+}
+
+function renderBookings(bookings) {
+  const tbody = document.getElementById('bookings-body');
+  if (!bookings.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-plane"></i>No bookings found.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bookings.map((b, i) => `
+    <tr>
+      <td class="td-muted">${i + 1}</td>
+      <td>
+        <div class="td-bold">${esc(b.passenger_name)}</div>
+        <div class="td-muted" style="font-size:0.77rem">${esc(b.email)}</div>
+      </td>
+      <td>
+        <div class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</div>
+        <div class="td-muted" style="font-size:0.77rem;text-transform:capitalize;">${b.trip_type || 'oneway'}</div>
+      </td>
+      <td class="td-muted">${fmtDate(b.travel_date)}</td>
+      <td class="td-muted" style="text-transform:capitalize;">${b.cabin_class || 'economy'}</td>
+      <td class="td-muted">${(b.adults||1) + (b.children||0) + (b.infants||0)} pax</td>
+      <td>${bookingBadge(b.status)}</td>
+      <td>
+        <div class="actions-group">
+          <button class="btn-action btn-action-gold" onclick="openBookingReceipt(${b.id})" title="View Receipt">
+            <i class="fas fa-eye"></i> Receipt
+          </button>
+          <button class="btn-action btn-action-brown" onclick="openStatusModal('booking', ${b.id}, '${b.status}')">
+            <i class="fas fa-edit"></i> Status
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderDashBookings(bookings) {
+  const tbody = document.getElementById('dash-bookings-body');
+  if (!bookings.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bookings.map(b => `
+    <tr>
+      <td class="td-bold">${esc(b.passenger_name)}</td>
+      <td class="td-muted">${esc(b.origin)} → ${esc(b.destination)}</td>
+      <td>${bookingBadge(b.status)}</td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD CARGO
+═══════════════════════════════════════════════ */
+async function loadCargo() {
+  const tbody = document.getElementById('cargo-body');
+  try {
+    const { data, count } = await apiFetch('/admin/cargo');
+    allCargo = data.shipments || [];
+    window.allCargo = allCargo;
+    document.getElementById('cargo-count').textContent = `${count} total`;
+    renderCargo(allCargo);
+    if (allUsers.length) renderUsers(allUsers);
+    renderDashCargo(allCargo.slice(0, 5));
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load cargo.</div></td></tr>`;
+    document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+  }
+}
+
+function renderCargo(shipments) {
+  const tbody = document.getElementById('cargo-body');
+  if (!shipments.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-box"></i>No cargo found.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = shipments.map((c) => `
+    <tr>
+      <td class="td-mono">${esc(c.tracking_id)}</td>
+      <td>
+        <div class="td-bold">${esc(c.sender_name)}</div>
+        <div class="td-muted" style="font-size:0.77rem">${esc(c.sender_phone)}</div>
+      </td>
+      <td>
+        <div class="td-bold">${esc(c.recipient_name)}</div>
+        <div class="td-muted" style="font-size:0.77rem">${esc(c.recipient_phone)}</div>
+      </td>
+      <td class="td-muted">${esc(c.origin || 'GLK')} → ${esc(c.destination)}</td>
+      <td class="td-muted" style="text-transform:capitalize;">${esc(c.cargo_type)}</td>
+      <td class="td-muted">${c.weight} kg</td>
+      <td class="td-muted" style="text-transform:capitalize;">${c.shipping_speed || 'standard'}</td>
+      <td>${cargoBadge(c.status)}</td>
+      <td>
+        <div class="actions-group">
+          <button class="btn-action btn-action-gold" onclick="openCargoReceipt(${c.id})" title="View Receipt">
+            <i class="fas fa-file-alt"></i> Receipt
+          </button>
+          <button class="btn-action btn-action-brown" onclick="openStatusModal('cargo', ${c.id}, '${c.status}')">
+            <i class="fas fa-edit"></i> Status
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderDashCargo(shipments) {
+  const tbody = document.getElementById('dash-cargo-body');
+  if (!shipments.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = shipments.map(c => `
+    <tr>
+      <td class="td-mono">${esc(c.tracking_id)}</td>
+      <td class="td-muted">${esc(c.destination)}</td>
+      <td>${cargoBadge(c.status)}</td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   STATUS MODAL
+═══════════════════════════════════════════════ */
+const bookingStatuses = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+const cargoStatuses   = ['Received', 'In Transit', 'Arrived', 'Cancelled'];
+
+function openStatusModal(type, id, currentStatus) {
+  modalCtx = { type, id, currentStatus };
+  const statuses = type === 'booking' ? bookingStatuses : cargoStatuses;
+  document.getElementById('modalTitle').textContent = `Update ${type === 'booking' ? 'Booking' : 'Cargo'} Status`;
+  const sel = document.getElementById('modalSelect');
+  sel.innerHTML = statuses.map(s => `<option value="${s}" ${s === currentStatus ? 'selected' : ''}>${s}</option>`).join('');
+  document.getElementById('statusModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('statusModal').classList.remove('open');
+  modalCtx = {};
+}
+
+async function saveStatus() {
+  const { type, id } = modalCtx;
+  const newStatus = document.getElementById('modalSelect').value;
+  const endpoint  = type === 'booking' ? `/bookings/${id}` : `/cargo/${id}`;
+
+  try {
+    const res = await fetch(`${API}${endpoint}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Status updated to "${newStatus}"`, 'fa-check-circle');
+      closeModal();
+      if (type === 'booking') await loadBookings();
+      else                    await loadCargo();
+      await loadStats();
+    } else {
+      showToast(data.message || 'Update failed', 'fa-times-circle');
+    }
+  } catch (e) {
+    showToast('Server error. Please try again.', 'fa-times-circle');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   DELETE USER
+═══════════════════════════════════════════════ */
+async function deleteUser(id, name) {
+  if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`${API}/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('User deleted successfully', 'fa-check-circle');
+      await loadUsers();
+      await loadStats();
+    } else {
+      showToast(data.message || 'Delete failed', 'fa-times-circle');
+    }
+  } catch (e) {
+    showToast('Server error.', 'fa-times-circle');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   SEARCH / FILTER
+═══════════════════════════════════════════════ */
+function filterTable(tbodyId, query, colIndexes) {
+  const tbody = document.getElementById(tbodyId);
+  const q = query.toLowerCase().trim();
+  Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+    const text = colIndexes.map(i => row.cells[i]?.textContent || '').join(' ').toLowerCase();
+    row.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+}
+
+/* ─── Refresh All ─────────────────────────────── */
+async function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing…';
+  btn.disabled = true;
+  await Promise.allSettled([loadStats(), loadUsers(), loadBookings(), loadCargo()]);
+  btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+  btn.disabled = false;
+  showToast('Dashboard refreshed', 'fa-check-circle');
+}
+
+/* ─── Logout ──────────────────────────────────── */
+function logout() {
+  localStorage.removeItem('mideye_token');
+  localStorage.removeItem('mideye_user');
+  window.location.href = 'login.html';
+}
+
+/* ─── Escape HTML ─────────────────────────────── */
+function esc(str) {
+  if (str === null || str === undefined) return '–';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── Keyboard shortcut: close modal on Esc ──── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('receiptModal')?.classList.contains('open')) {
+      closeReceiptModal();
+    } else if (document.getElementById('userProfileModal')?.classList.contains('open')) {
+      closeUserProfileModal();
+    } else {
+      closeModal();
+    }
+  }
+});
+document.getElementById('statusModal').addEventListener('click', e => { if (e.target === document.getElementById('statusModal')) closeModal(); });
+
+/* ─── Expose globals for admin-users.js ─────── */
+window.allUsers    = allUsers;
+window.allBookings = allBookings;
+window.allCargo    = allCargo;
+window.esc         = esc;
+window.fmtDate     = fmtDate;
+window.roleBadge   = roleBadge;
+window.showToast   = showToast;
+window.navigate    = navigate;
+
+/* ─── Boot ────────────────────────────────────── */
+(async () => {
+  await Promise.allSettled([loadStats(), loadUsers(), loadBookings(), loadCargo()]);
+})();
+</script>
+</body>
+</html>
