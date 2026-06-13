@@ -508,7 +508,7 @@ if (loginForm) {
 }
 
 const registerForm = document.getElementById('registerForm');
-if (registerForm) {
+if (registerForm && registerForm.dataset.apiManaged !== 'true') {
   registerForm.addEventListener('submit', e => {
     e.preventDefault();
     if (!validateForm(registerForm)) return;

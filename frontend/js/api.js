@@ -125,22 +125,258 @@ const initLoginForm = () => {
 
 // ─── REGISTER FORM  (register.html) ──────────────────────────────────────────
 
+const TEMP_EMAIL_DOMAINS = new Set([
+  '10minutemail.com',
+  'dispostable.com',
+  'fakeinbox.com',
+  'guerrillamail.com',
+  'maildrop.cc',
+  'mailinator.com',
+  'sharklasers.com',
+  'tempmail.com',
+  'trashmail.com',
+  'yopmail.com',
+]);
+
+const isLikelyTemporaryEmail = (email) => {
+  const [, rawDomain = ''] = (email || '').split('@');
+  const domain = rawDomain.toLowerCase().trim();
+  if (!domain) return false;
+  if (TEMP_EMAIL_DOMAINS.has(domain)) return true;
+  return /(mailinator|tempmail|10minutemail|guerrillamail|trashmail|yopmail|fakeinbox|dispostable|maildrop|sharklasers)/i.test(domain);
+};
+
 const initRegisterForm = () => {
   const form = document.getElementById('registerForm');
   if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn      = form.querySelector('[type="submit"]');
-    const full_name = form.querySelector('input[type="text"]').value.trim();
-    const email     = form.querySelector('input[type="email"]').value.trim();
-    const password  = document.getElementById('regPassword').value;
-    const confirm   = document.getElementById('regConfirm').value;
+  const fullNameInput = form.querySelector('#regFullName');
+  const emailInput    = form.querySelector('#regEmail');
+  const passwordInput = form.querySelector('#regPassword');
+  const confirmInput  = form.querySelector('#regConfirm');
 
-    if (password !== confirm) {
-      showAlert('Passwords do not match.', 'error');
+  if (!fullNameInput || !emailInput || !passwordInput || !confirmInput) return;
+
+  const feedbackEls = {
+    full_name: form.querySelector('#regFullNameFeedback'),
+    email:     form.querySelector('#regEmailFeedback'),
+    password:  form.querySelector('#regPasswordFeedback'),
+    confirm:   form.querySelector('#regConfirmFeedback'),
+  };
+  const statusIcons = {
+    full_name: form.querySelector('#regFullNameStatusIcon'),
+    email:     form.querySelector('#regEmailStatusIcon'),
+    password:  form.querySelector('#regPasswordStatusIcon'),
+    confirm:   form.querySelector('#regConfirmStatusIcon'),
+  };
+  const strengthBarWrap = document.getElementById('regPasswordStrengthBarWrap');
+  const strengthBar = document.getElementById('regPasswordStrengthBar');
+  const strengthText = document.getElementById('regPasswordStrengthText');
+  const checklist = document.getElementById('regPasswordChecklist');
+
+  const markFieldState = (inputEl, key, valid, message) => {
+    inputEl.classList.remove('is-valid', 'is-invalid');
+    inputEl.setAttribute('aria-invalid', 'false');
+
+    if (message) {
+      inputEl.classList.add(valid ? 'is-valid' : 'is-invalid');
+      inputEl.setAttribute('aria-invalid', valid ? 'false' : 'true');
+    }
+
+    const feedback = feedbackEls[key];
+    if (feedback) {
+      feedback.textContent = message || '';
+      feedback.classList.remove('valid', 'invalid');
+      if (message) feedback.classList.add(valid ? 'valid' : 'invalid');
+    }
+
+    const icon = statusIcons[key];
+    if (icon) {
+      icon.className = 'field-status-icon';
+      icon.innerHTML = '';
+      if (message) {
+        icon.classList.add('visible', valid ? 'valid' : 'invalid');
+        icon.innerHTML = valid
+          ? '<i class="fas fa-circle-check"></i>'
+          : '<i class="fas fa-circle-exclamation"></i>';
+      }
+    }
+  };
+
+  const updatePasswordChecklist = (rules) => {
+    if (!checklist) return;
+    checklist.querySelectorAll('li[data-rule]').forEach((item) => {
+      const ruleName = item.dataset.rule;
+      const passed = Boolean(rules[ruleName]);
+      item.classList.toggle('valid', passed);
+      const icon = item.querySelector('i');
+      if (icon) {
+        icon.className = passed ? 'fas fa-check-circle' : 'fa-regular fa-circle';
+      }
+    });
+  };
+
+  const updatePasswordStrength = (password, rules) => {
+    if (!strengthBar || !strengthText || !strengthBarWrap) return;
+
+    if (!password) {
+      strengthBar.style.width = '0%';
+      strengthBar.style.backgroundColor = '#dc2626';
+      strengthText.textContent = 'Weak';
+      strengthBarWrap.setAttribute('aria-valuenow', '0');
       return;
     }
+
+    let score = 0;
+    if (rules.length) score += 1;
+    if (rules.uppercase) score += 1;
+    if (rules.lowercase) score += 1;
+    if (rules.number) score += 1;
+    if (rules.special) score += 1;
+    if (password.length >= 12) score += 1;
+
+    let label = 'Weak';
+    let width = 34;
+    let color = '#dc2626';
+    if (score >= 5) {
+      label = 'Strong';
+      width = 100;
+      color = '#16a34a';
+    } else if (score >= 3) {
+      label = 'Medium';
+      width = 68;
+      color = '#d97706';
+    }
+
+    strengthText.textContent = label;
+    strengthBar.style.width = `${width}%`;
+    strengthBar.style.backgroundColor = color;
+    strengthBarWrap.setAttribute('aria-valuenow', String(width));
+  };
+
+  const validateFullName = () => {
+    const value = fullNameInput.value.trim().replace(/\s+/g, ' ');
+    if (!value) {
+      markFieldState(fullNameInput, 'full_name', false, 'Please enter your legal full name.');
+      return false;
+    }
+
+    const parts = value.split(' ');
+    const namePartPattern = /^[A-Za-z]+(?:['-][A-Za-z]+)*$/;
+    const hasTwoNames = parts.length >= 2;
+    const allValidParts = parts.every((part) => namePartPattern.test(part));
+
+    if (!hasTwoNames || !allValidParts || value.length < 5) {
+      markFieldState(fullNameInput, 'full_name', false, 'Use at least first and last name with letters only.');
+      return false;
+    }
+
+    markFieldState(fullNameInput, 'full_name', true, 'Name looks valid.');
+    return true;
+  };
+
+  const validateEmail = () => {
+    const value = emailInput.value.trim().toLowerCase();
+    if (!value) {
+      markFieldState(emailInput, 'email', false, 'Please enter your real email address.');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(value) || value.includes('..')) {
+      markFieldState(emailInput, 'email', false, 'Enter a valid email format (example: name@example.com).');
+      return false;
+    }
+
+    if (isLikelyTemporaryEmail(value)) {
+      markFieldState(emailInput, 'email', false, 'Temporary email domains are not accepted.');
+      return false;
+    }
+
+    markFieldState(emailInput, 'email', true, 'Email looks good.');
+    return true;
+  };
+
+  const getPasswordRules = () => {
+    const value = passwordInput.value;
+    return {
+      length: value.length >= 8,
+      uppercase: /[A-Z]/.test(value),
+      lowercase: /[a-z]/.test(value),
+      number: /\d/.test(value),
+      special: /[!@#$%^&*(),.?":{}|<>_\-[\]\\/~`+=;]/.test(value),
+    };
+  };
+
+  const validatePassword = () => {
+    const value = passwordInput.value;
+    const rules = getPasswordRules();
+    updatePasswordChecklist(rules);
+    updatePasswordStrength(value, rules);
+
+    if (!value) {
+      markFieldState(passwordInput, 'password', false, 'Please create a strong password.');
+      return false;
+    }
+
+    const allPassed = Object.values(rules).every(Boolean);
+    if (!allPassed) {
+      markFieldState(passwordInput, 'password', false, 'Password does not meet all required rules.');
+      return false;
+    }
+
+    markFieldState(passwordInput, 'password', true, 'Strong password detected.');
+    return true;
+  };
+
+  const validateConfirmPassword = () => {
+    const password = passwordInput.value;
+    const confirm = confirmInput.value;
+
+    if (!confirm) {
+      markFieldState(confirmInput, 'confirm', false, 'Please confirm your password.');
+      return false;
+    }
+
+    if (password !== confirm) {
+      markFieldState(confirmInput, 'confirm', false, 'Passwords do not match.');
+      return false;
+    }
+
+    markFieldState(confirmInput, 'confirm', true, 'Passwords match.');
+    return true;
+  };
+
+  fullNameInput.addEventListener('input', validateFullName);
+  fullNameInput.addEventListener('blur', validateFullName);
+  emailInput.addEventListener('input', validateEmail);
+  emailInput.addEventListener('blur', validateEmail);
+  passwordInput.addEventListener('input', () => {
+    validatePassword();
+    if (confirmInput.value) validateConfirmPassword();
+  });
+  passwordInput.addEventListener('blur', validatePassword);
+  confirmInput.addEventListener('input', validateConfirmPassword);
+  confirmInput.addEventListener('blur', validateConfirmPassword);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('[type="submit"]');
+
+    const isNameValid = validateFullName();
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isConfirmValid = validateConfirmPassword();
+
+    if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmValid) {
+      showAlert('Please correct the highlighted fields before continuing.', 'error');
+      form.querySelector('.is-invalid')?.focus();
+      return;
+    }
+
+    const full_name = fullNameInput.value.trim().replace(/\s+/g, ' ');
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
 
     setButtonLoading(btn, true);
 

@@ -8,6 +8,199 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="../css/style.css" rel="stylesheet" />
+  <style>
+    .register-main {
+      min-height: calc(100vh - 100px);
+      padding: 5.5rem 0 3rem;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(254, 230, 133, 0.22), transparent 40%),
+        radial-gradient(circle at 90% 20%, rgba(68, 19, 6, 0.08), transparent 35%);
+    }
+
+    .register-card {
+      border: 1px solid rgba(68, 19, 6, 0.12);
+      border-radius: 1.2rem;
+      box-shadow: 0 16px 50px rgba(68, 19, 6, 0.12);
+    }
+
+    .register-card .card-body {
+      padding: clamp(1.4rem, 2.4vw, 2.3rem);
+    }
+
+    .register-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.45rem;
+      margin-bottom: 0;
+    }
+
+    .register-input-wrap {
+      position: relative;
+    }
+
+    .register-input-icon {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--brown-xlight);
+      font-size: 0.92rem;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .register-input-wrap .form-control-custom {
+      padding-left: 2.55rem;
+      padding-right: 5rem;
+    }
+
+    .register-input-wrap .form-control-custom.no-status {
+      padding-right: 2.8rem;
+    }
+
+    .field-status-icon {
+      position: absolute;
+      right: 2.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1rem;
+      height: 1rem;
+      font-size: 0.92rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .field-status-icon.visible {
+      opacity: 1;
+    }
+
+    .field-status-icon.valid {
+      color: #16a34a;
+    }
+
+    .field-status-icon.invalid {
+      color: #dc2626;
+    }
+
+    .form-control-custom.is-valid {
+      border-color: #16a34a;
+      background: #f0fdf4;
+    }
+
+    .form-control-custom.is-valid:focus {
+      box-shadow: 0 0 0 3.5px rgba(22, 163, 74, 0.14);
+    }
+
+    .validation-feedback {
+      margin-top: 0.38rem;
+      font-size: 0.79rem;
+      line-height: 1.35;
+      min-height: 1.2rem;
+    }
+
+    .validation-feedback.invalid {
+      color: #dc2626;
+    }
+
+    .validation-feedback.valid {
+      color: #15803d;
+    }
+
+    .form-hint-text {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      margin-top: 0.38rem;
+    }
+
+    .register-input-wrap .pass-toggle-btn {
+      right: 0.85rem;
+      z-index: 3;
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 999px;
+    }
+
+    .register-input-wrap .pass-toggle-btn:focus-visible {
+      outline: 2px solid rgba(68, 19, 6, 0.24);
+      outline-offset: 1px;
+    }
+
+    .password-strength {
+      margin-top: 0.65rem;
+    }
+
+    .password-strength-bar {
+      width: 100%;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: #f3eee9;
+      overflow: hidden;
+    }
+
+    .password-strength-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      transition: width 0.25s ease, background-color 0.25s ease;
+      background: #dc2626;
+    }
+
+    .password-strength-label {
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .password-checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0.7rem 0 0;
+      display: grid;
+      gap: 0.38rem;
+    }
+
+    .password-checklist li {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      color: #7c2d12;
+    }
+
+    .password-checklist li i {
+      font-size: 0.78rem;
+      color: #b45309;
+      width: 0.85rem;
+    }
+
+    .password-checklist li.valid {
+      color: #166534;
+    }
+
+    .password-checklist li.valid i {
+      color: #16a34a;
+    }
+
+    .register-submit-btn {
+      margin-top: 0.65rem;
+    }
+
+    @media (max-width: 576px) {
+      .register-main {
+        padding-top: 5rem;
+      }
+
+      .register-input-wrap .form-control-custom {
+        padding-right: 4.7rem;
+      }
+    }
+  </style>
   <!-- Redirect already-logged-in users away from register page -->
   <script src="../js/auth-guard.js"></script>
   <script>AuthGuard.requireGuest();</script>
@@ -36,39 +229,119 @@
     </div>
   </div>
 </nav>
-<main style="padding:5rem 0;">
+<main class="register-main">
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="card p-4 shadow-sm">
-          <div class="text-center mb-4">
+      <div class="col-lg-6 col-md-8">
+        <div class="card register-card">
+          <div class="card-body">
+            <div class="text-center mb-4">
             <span class="section-eyebrow">Create Account</span>
-            <h2 class="section-title mt-3">Register for Mideye</h2>
+            <h2 class="section-title mt-3 mb-0">Register for Mideye</h2>
+            <p class="register-subtitle">Use your real legal identity details to create a secure customer account.</p>
           </div>
-          <form id="registerForm" novalidate>
+          <form id="registerForm" data-api-managed="true" novalidate>
             <div class="mb-3">
-              <label class="form-label">Full Name</label>
-              <input type="text" class="form-control form-control-custom" required />
+              <label for="regFullName" class="form-label">Real Full Name</label>
+              <div class="register-input-wrap">
+                <i class="fas fa-id-card register-input-icon"></i>
+                <input
+                  id="regFullName"
+                  name="full_name"
+                  type="text"
+                  class="form-control form-control-custom"
+                  autocomplete="name"
+                  placeholder="e.g., Ahmed Mohamed Hassan"
+                  aria-describedby="regFullNameHint regFullNameFeedback"
+                  required
+                />
+                <span id="regFullNameStatusIcon" class="field-status-icon" aria-hidden="true"></span>
+              </div>
+              <small id="regFullNameHint" class="form-hint-text">Enter your legal first and last name exactly as on official documents.</small>
+              <div id="regFullNameFeedback" class="validation-feedback" aria-live="polite"></div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control form-control-custom" required />
+              <label for="regEmail" class="form-label">Real Email Address</label>
+              <div class="register-input-wrap">
+                <i class="fas fa-envelope register-input-icon"></i>
+                <input
+                  id="regEmail"
+                  name="email"
+                  type="email"
+                  class="form-control form-control-custom"
+                  autocomplete="email"
+                  placeholder="e.g., ahmed@example.com"
+                  aria-describedby="regEmailHint regEmailFeedback"
+                  required
+                />
+                <span id="regEmailStatusIcon" class="field-status-icon" aria-hidden="true"></span>
+              </div>
+              <small id="regEmailHint" class="form-hint-text">Use a personal, active inbox. Temporary email addresses are not allowed.</small>
+              <div id="regEmailFeedback" class="validation-feedback" aria-live="polite"></div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input id="regPassword" type="password" class="form-control form-control-custom" required />
+              <label for="regPassword" class="form-label">Password</label>
+              <div class="register-input-wrap">
+                <i class="fas fa-lock register-input-icon"></i>
+                <input
+                  id="regPassword"
+                  name="password"
+                  type="password"
+                  class="form-control form-control-custom"
+                  autocomplete="new-password"
+                  placeholder="Create a strong password"
+                  aria-describedby="regPasswordFeedback"
+                  required
+                />
+                <span id="regPasswordStatusIcon" class="field-status-icon" aria-hidden="true"></span>
+                <button type="button" class="pass-toggle-btn" data-target="regPassword" aria-label="Show or hide password">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="password-strength" aria-live="polite">
+                <div class="password-strength-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="regPasswordStrengthBarWrap">
+                  <span id="regPasswordStrengthBar"></span>
+                </div>
+                <p class="password-strength-label">Strength: <strong id="regPasswordStrengthText">Weak</strong></p>
+              </div>
+              <ul id="regPasswordChecklist" class="password-checklist" aria-label="Password requirements">
+                <li data-rule="length"><i class="fa-regular fa-circle"></i>At least 8 characters</li>
+                <li data-rule="uppercase"><i class="fa-regular fa-circle"></i>At least 1 uppercase letter</li>
+                <li data-rule="lowercase"><i class="fa-regular fa-circle"></i>At least 1 lowercase letter</li>
+                <li data-rule="number"><i class="fa-regular fa-circle"></i>At least 1 number</li>
+                <li data-rule="special"><i class="fa-regular fa-circle"></i>At least 1 special character (#, @, !, $, %, etc.)</li>
+              </ul>
+              <div id="regPasswordFeedback" class="validation-feedback" aria-live="polite"></div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Confirm Password</label>
-              <input id="regConfirm" type="password" class="form-control form-control-custom" required />
+              <label for="regConfirm" class="form-label">Confirm Password</label>
+              <div class="register-input-wrap">
+                <i class="fas fa-shield-halved register-input-icon"></i>
+                <input
+                  id="regConfirm"
+                  name="confirm_password"
+                  type="password"
+                  class="form-control form-control-custom"
+                  autocomplete="new-password"
+                  placeholder="Re-enter your password"
+                  aria-describedby="regConfirmFeedback"
+                  required
+                />
+                <span id="regConfirmStatusIcon" class="field-status-icon" aria-hidden="true"></span>
+                <button type="button" class="pass-toggle-btn" data-target="regConfirm" aria-label="Show or hide confirm password">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div id="regConfirmFeedback" class="validation-feedback" aria-live="polite"></div>
             </div>
-            <button type="submit" class="btn-primary-custom w-100">
+            <button type="submit" class="btn-primary-custom w-100 register-submit-btn">
               <span><i class="fas fa-user-plus me-2"></i>Create Account</span>
             </button>
             <div class="text-center mt-3">
               <span>Already a member? <a href="login.html">Login</a></span>
             </div>
           </form>
+          </div>
         </div>
       </div>
     </div>
