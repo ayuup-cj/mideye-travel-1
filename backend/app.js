@@ -15,9 +15,9 @@ const adminRoutes   = require('./routes/adminRoutes');
 const app = express();
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
-// Add your Vercel frontend URL to the allowed list before deploying.
+// server.js imports this app; CORS is configured here so all /api routes inherit it.
 const allowedOrigins = [
-  // Local development
+  // Local development (unchanged)
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5000',
@@ -26,23 +26,26 @@ const allowedOrigins = [
   'http://127.0.0.1:5500',
   'null', // file:// protocol during local dev
 
-  // ── Production: replace with your real Vercel URL ────────────────────────
+  // Production – Render frontend
   'https://mideye-travel-1.onrender.com',
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (Render health checks, Postman, curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error(`CORS: origin '${origin}' not allowed`));
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow requests with no origin (Render health checks, Postman, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Reject without throwing — avoids 500 responses that lack CORS headers on preflight
+    callback(null, false);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // ─── Body Parsers ─────────────────────────────────────────────────────────────
 app.use(express.json());

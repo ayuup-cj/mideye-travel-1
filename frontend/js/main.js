@@ -488,25 +488,8 @@ if (window.location.pathname.includes('tracking')) {
 }
 
 /* ─────────────────────────────────────────────
-   12. LOGIN / REGISTER FORMS
+   12. REGISTER FORM (login handled by api.js)
 ───────────────────────────────────────────── */
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    if (!validateForm(loginForm)) return;
-
-    const btn = loginForm.querySelector('[type="submit"]');
-    btn.disabled = true;
-    btn.querySelector('span').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing in...';
-
-    setTimeout(() => {
-      showToast('Welcome back!', 'Redirecting to your dashboard...');
-      setTimeout(() => window.location.href = 'admin.html', 1800);
-    }, 1500);
-  });
-}
-
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
   registerForm.addEventListener('submit', e => {
