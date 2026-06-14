@@ -28,6 +28,19 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('✅ MySQL connected successfully via Sequelize');
 
+    const [statusCol] = await sequelize.query("SHOW COLUMNS FROM users LIKE 'status'");
+    if (!statusCol.length) {
+      await sequelize.query(
+        "ALTER TABLE users ADD COLUMN status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active' AFTER role"
+      );
+    }
+    const [cityCol] = await sequelize.query("SHOW COLUMNS FROM users LIKE 'city'");
+    if (!cityCol.length) {
+      await sequelize.query(
+        'ALTER TABLE users ADD COLUMN city VARCHAR(100) DEFAULT NULL AFTER phone'
+      );
+    }
+
     await sequelize.sync({ alter: false });
     console.log('✅ Database tables synced');
   } catch (error) {

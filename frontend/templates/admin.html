@@ -27,6 +27,10 @@
       --white:       #ffffff;
       --sidebar-w:   260px;
       --topbar-h:    64px;
+      --chart-1:     #441306;
+      --chart-2:     #6b1e0d;
+      --chart-3:     #e8c945;
+      --chart-4:     #b85a40;
       --shadow-sm:   0 2px 12px rgba(68,19,6,0.09);
       --shadow-md:   0 6px 28px rgba(68,19,6,0.13);
       --border:      rgba(68,19,6,0.10);
@@ -555,9 +559,64 @@
       .stats-grid { grid-template-columns: 1fr; }
     }
 
+    /* ── Dashboard charts ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .chart-card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+    .chart-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .chart-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--brown);
+    }
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+    .chart-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(68,19,6,0.65);
+    }
+    .chart-legend-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .chart-canvas-wrap {
+      position: relative;
+      height: 280px;
+    }
+
     /* ── Dashboard quick-tables mini grid ── */
     .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-    @media(max-width:900px){ .dash-grid{ grid-template-columns:1fr; } }
+    @media(max-width:900px){
+      .charts-grid { grid-template-columns: 1fr; }
+      .dash-grid{ grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
@@ -685,6 +744,33 @@
         </div>
       </div>
 
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">Activity Overview</div>
+            <div class="chart-legend" id="overviewLegend">
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:var(--chart-1)"></span>Users</span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:var(--chart-2)"></span>Bookings</span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:var(--chart-3)"></span>Cargo</span>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="overviewChart" aria-label="Activity overview chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">Totals Comparison</div>
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:var(--chart-1)"></span>Records</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="totalsChart" aria-label="Totals comparison chart"></canvas>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick view mini tables -->
       <div class="dash-grid">
         <div class="data-card">
@@ -804,7 +890,7 @@
           <div class="section-heading">Cargo</div>
           <div class="section-subheading">All cargo shipment requests</div>
         </div>
-        <input type="text" class="search-input" id="search-cargo" placeholder="Search cargo…" oninput="filterTable('cargo-body', this.value, [0,1,2])">
+        <input type="text" class="search-input" id="search-cargo" placeholder="Search cargo…" oninput="onCargoSearchInput(this.value)">
       </div>
       <div class="data-card">
         <div class="data-card-header">
@@ -897,6 +983,7 @@
 <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99;" onclick="toggleSidebar()"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../js/admin-users.js"></script>
 <script src="../js/admin-receipts.js"></script>
 <script>
@@ -904,15 +991,116 @@
 
 /* ─── Config ─────────────────────────────────────── */
 const API = 'http://localhost:5000/api';
+window.__ADMIN_API__ = API;
 
 /* ─── State ──────────────────────────────────────── */
 let allBookings = [];
 let allCargo    = [];
 let allUsers    = [];
+let cargoUserFilter = null;
 let modalCtx    = {};  // { type: 'booking'|'cargo', id, currentStatus }
+let overviewChart = null;
+let totalsChart = null;
+
+const CHART_COLORS = {
+  users: '#441306',
+  bookings: '#6b1e0d',
+  cargo: '#e8c945',
+  pending: '#b85a40',
+};
+
+function renderDashboardCharts(stats = {}) {
+  if (typeof Chart === 'undefined') return;
+
+  const users = Number(stats.total_users || 0);
+  const bookings = Number(stats.total_bookings || 0);
+  const cargo = Number(stats.total_cargo || 0);
+  const pending = Number(stats.pending_bookings || 0);
+
+  const overviewCanvas = document.getElementById('overviewChart');
+  const totalsCanvas = document.getElementById('totalsChart');
+  if (!overviewCanvas || !totalsCanvas) return;
+
+  const overviewData = [users, bookings, cargo];
+  const totalsData = [users, bookings, cargo, pending];
+  const totalsMax = Math.max(...totalsData, 1);
+
+  if (overviewChart) overviewChart.destroy();
+  overviewChart = new Chart(overviewCanvas, {
+    type: 'doughnut',
+    data: {
+      labels: ['Users', 'Bookings', 'Cargo'],
+      datasets: [{
+        data: overviewData,
+        backgroundColor: [CHART_COLORS.users, CHART_COLORS.bookings, CHART_COLORS.cargo],
+        borderWidth: 0,
+        hoverOffset: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '58%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#441306',
+          titleColor: '#fee685',
+          bodyColor: '#fff',
+          padding: 10,
+          cornerRadius: 8,
+        },
+      },
+    },
+  });
+
+  if (totalsChart) totalsChart.destroy();
+  totalsChart = new Chart(totalsCanvas, {
+    type: 'bar',
+    data: {
+      labels: ['Users', 'Bookings', 'Cargo', 'Pending'],
+      datasets: [{
+        label: 'Records',
+        data: totalsData,
+        backgroundColor: [CHART_COLORS.users, CHART_COLORS.bookings, CHART_COLORS.cargo, CHART_COLORS.pending],
+        borderRadius: 8,
+        borderSkipped: false,
+        maxBarThickness: 72,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#441306',
+          titleColor: '#fee685',
+          bodyColor: '#fff',
+          padding: 10,
+          cornerRadius: 8,
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: 'rgba(68,19,6,0.65)', font: { weight: '600', size: 12 } },
+        },
+        y: {
+          beginAtZero: true,
+          suggestedMax: totalsMax < 5 ? 5 : undefined,
+          grid: { color: 'rgba(68,19,6,0.08)' },
+          ticks: { color: 'rgba(68,19,6,0.55)', precision: 0 },
+        },
+      },
+    },
+  });
+}
 
 /* ─── Auth Guard ─────────────────────────────────── */
 const token = localStorage.getItem('mideye_token');
+const adminSessionUser = JSON.parse(localStorage.getItem('mideye_user') || 'null');
+window.__ADMIN_USER_ID__ = adminSessionUser?.id || '';
 const user  = JSON.parse(localStorage.getItem('mideye_user') || 'null');
 
 if (!token || !user || user.role !== 'admin') {
@@ -1013,6 +1201,7 @@ async function loadStats() {
     document.getElementById('badge-users').textContent    = s.total_users    ?? '–';
     document.getElementById('badge-bookings').textContent = s.total_bookings  ?? '–';
     document.getElementById('badge-cargo').textContent    = s.total_cargo     ?? '–';
+    renderDashboardCharts(s);
   } catch (e) {
     console.error('Stats error:', e);
     ['users','bookings','cargo','pending'].forEach(k => {
@@ -1138,11 +1327,18 @@ async function loadCargo() {
 
 function renderCargo(shipments) {
   const tbody = document.getElementById('cargo-body');
-  if (!shipments.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-box"></i>No cargo found.</div></td></tr>`;
+  const list = cargoUserFilter
+    ? shipments.filter((c) => c.user_id === cargoUserFilter.id)
+    : shipments;
+
+  if (!list.length) {
+    const emptyMsg = cargoUserFilter
+      ? `No cargo found for ${cargoUserFilter.name}.`
+      : 'No cargo found.';
+    tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-box"></i>${emptyMsg}</div></td></tr>`;
     return;
   }
-  tbody.innerHTML = shipments.map((c) => `
+  tbody.innerHTML = list.map((c) => `
     <tr>
       <td class="td-mono">${esc(c.tracking_id)}</td>
       <td>
@@ -1266,6 +1462,30 @@ function filterTable(tbodyId, query, colIndexes) {
   });
 }
 
+function filterCargoByUser(userId, userName) {
+  cargoUserFilter = { id: userId, name: userName };
+  renderCargo(allCargo);
+  const search = document.getElementById('search-cargo');
+  if (search) {
+    search.value = '';
+    search.placeholder = `Filtered: ${userName} — clear to show all`;
+  }
+  showToast(`Showing cargo for ${userName}`, 'fa-box');
+}
+
+function clearCargoUserFilter() {
+  if (!cargoUserFilter) return;
+  cargoUserFilter = null;
+  renderCargo(allCargo);
+  const search = document.getElementById('search-cargo');
+  if (search) search.placeholder = 'Search cargo…';
+}
+
+function onCargoSearchInput(value) {
+  if (!value.trim() && cargoUserFilter) clearCargoUserFilter();
+  filterTable('cargo-body', value, [0, 1, 2]);
+}
+
 /* ─── Refresh All ─────────────────────────────── */
 async function refreshAll() {
   const btn = document.getElementById('refreshBtn');
@@ -1313,6 +1533,10 @@ window.fmtDate     = fmtDate;
 window.roleBadge   = roleBadge;
 window.showToast   = showToast;
 window.navigate    = navigate;
+window.loadUsers   = loadUsers;
+window.renderCargo = renderCargo;
+window.filterCargoByUser = filterCargoByUser;
+window.clearCargoUserFilter = clearCargoUserFilter;
 
 /* ─── Boot ────────────────────────────────────── */
 (async () => {
