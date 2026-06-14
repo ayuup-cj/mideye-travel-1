@@ -372,10 +372,17 @@ const updateNavbar = () => {
 window.mideyeLogout = function () {
   localStorage.removeItem('mideye_token');
   localStorage.removeItem('mideye_user');
-  window.location.reload();
+  window.location.href = 'index.html';
 };
 
 // ─── LOGIN FORM  (login.html) ─────────────────────────────────────────────────
+
+const initLoginPageMessage = () => {
+  if (!document.getElementById('loginForm')) return;
+  if (new URLSearchParams(window.location.search).get('registered') === '1') {
+    showAlert('Account created successfully. Please log in to continue.', 'success');
+  }
+};
 
 const initLoginForm = () => {
   const form = document.getElementById('loginForm');
@@ -402,8 +409,7 @@ const initLoginForm = () => {
         localStorage.setItem('mideye_user',  JSON.stringify(data.data.user));
         showAlert('Login successful! Redirecting…', 'success');
         setTimeout(() => {
-          const role = data.data.user.role;
-          window.location.href = role === 'admin' ? 'admin.html' : 'user-dashboard.html';
+          window.location.href = 'index.html';
         }, 1000);
       } else {
         showAlert(data.message || 'Login failed. Please try again.', 'error');
@@ -453,10 +459,8 @@ const initRegisterForm = () => {
       const data = await res.json();
 
       if (data.success) {
-        localStorage.setItem('mideye_token', data.data.token);
-        localStorage.setItem('mideye_user', JSON.stringify(data.data.user));
-        showAlert('Account created successfully! Redirecting…', 'success');
-        setTimeout(() => { window.location.href = 'user-dashboard.html'; }, 1200);
+        showAlert('Account created successfully. Please log in to continue.', 'success');
+        setTimeout(() => { window.location.href = 'login.html?registered=1'; }, 1200);
       } else {
         const msg = data.errors ? data.errors.map((item) => item.message).join('<br>') : data.message;
         showAlert(msg, 'error');
@@ -713,6 +717,7 @@ const renderTrackingResult = ({ cargo, timeline }) => {
 
 document.addEventListener('DOMContentLoaded', () => {
   updateNavbar();
+  initLoginPageMessage();
   initLoginForm();
   initRegisterForm();
   initBookingForm();

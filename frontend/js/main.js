@@ -99,7 +99,7 @@ navLinks.forEach(link => {
 window.mideyeLogout = function () {
   localStorage.removeItem('mideye_token');
   localStorage.removeItem('mideye_user');
-  window.location.reload();
+  window.location.href = 'index.html';
 };
 
 /* ─────────────────────────────────────────────
