@@ -80,6 +80,13 @@ const login = async (req, res) => {
       });
     }
 
+    if (user.status === 'Inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'This account has been deactivated. Please contact support.',
+      });
+    }
+
     const token = generateToken(user);
 
     return res.status(200).json({

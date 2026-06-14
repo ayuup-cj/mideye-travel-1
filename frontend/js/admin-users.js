@@ -102,9 +102,9 @@ const buildUserProfile = (user, allBookings = [], allCargo = []) => {
 
   return {
     ...user,
-    city: extra.city,
+    city: user.city || extra.city,
     address: extra.address,
-    status: extra.status,
+    status: user.status || extra.status,
     last_login: extra.last_login,
     payment_method: extra.payment_method,
     bookings_total: bookingsTotal,
@@ -309,41 +309,192 @@ window.closeUserProfileModal = function () {
   activeProfileUser = null;
 };
 
-// ─── Modal action handlers (demo toasts) ──────────────────────────────────────
-window.userModalAction = function (action) {
+const getAdminApiBase = () => window.__ADMIN_API__ || 'http://localhost:5000/api';
+
+const patchAdminUser = async (userId, body) => {
+  const token = localStorage.getItem('mideye_token');
+  const res = await fetch(`${getAdminApiBase()}/admin/users/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Unable to update user.');
+  }
+  return data.data.user;
+};
+
+const syncUpdatedUser = (updatedUser) => {
+  const list = window.allUsers || [];
+  const idx = list.findIndex((u) => u.id === updatedUser.id);
+  if (idx >= 0) list[idx] = { ...list[idx], ...updatedUser };
+  window.allUsers = list;
+};
+
+const refreshUsersTable = () => {
+  window.renderEnhancedUsers?.(
+    window.allUsers,
+    window.allBookings,
+    window.allCargo,
+    window.esc,
+    window.fmtDate,
+    window.roleBadge
+  );
+};
+
+const renderUserActionPanel = (html) => {
+  const panel = document.getElementById('userModalActions');
+  if (panel) panel.innerHTML = html;
+};
+
+const restoreUserActionButtons = () => {
+  if (!activeProfileUser) return;
+  openUserProfileModal(activeProfileUser.id);
+};
+
+const showUserEditForm = () => {
+  if (!activeProfileUser) return;
+  const p = activeProfileUser;
+  renderUserActionPanel(`
+    <div class="user-action-panel">
+      <div class="user-action-panel__title"><i class="fas fa-edit"></i> Edit Profile</div>
+      <div class="user-action-form">
+        <label class="user-action-form__label" for="editFullName">Full Name</label>
+        <input id="editFullName" class="user-action-form__input" type="text" value="${window.esc(p.full_name)}" />
+        <label class="user-action-form__label" for="editEmail">Email</label>
+        <input id="editEmail" class="user-action-form__input" type="email" value="${window.esc(p.email)}" />
+        <label class="user-action-form__label" for="editPhone">Phone</label>
+        <input id="editPhone" class="user-action-form__input" type="tel" value="${window.esc(p.phone || '')}" />
+        <label class="user-action-form__label" for="editCity">City</label>
+        <input id="editCity" class="user-action-form__input" type="text" value="${window.esc(p.city || '')}" placeholder="e.g. Galkacyo, Somalia" />
+      </div>
+      <div class="user-action-panel__btns">
+        <button type="button" class="user-modal__btn user-modal__btn--outline" onclick="restoreUserActionButtons()">Cancel</button>
+        <button type="button" class="user-modal__btn user-modal__btn--primary" onclick="saveUserProfileEdits()">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  `);
+};
+
+const showUserRoleForm = () => {
+  if (!activeProfileUser) return;
+  const p = activeProfileUser;
+  const isSelf = String(window.__ADMIN_USER_ID__ || '') === String(p.id);
+  renderUserActionPanel(`
+    <div class="user-action-panel">
+      <div class="user-action-panel__title"><i class="fas fa-user-shield"></i> Change Role</div>
+      <p class="user-action-panel__hint">Current role: <strong style="text-transform:capitalize;">${window.esc(p.role)}</strong></p>
+      <select id="editUserRole" class="user-action-form__input" ${isSelf ? 'disabled' : ''}>
+        <option value="user" ${p.role === 'user' ? 'selected' : ''}>User</option>
+        <option value="admin" ${p.role === 'admin' ? 'selected' : ''}>Admin</option>
+      </select>
+      ${isSelf ? '<p class="user-action-panel__hint">You cannot change your own role.</p>' : ''}
+      <div class="user-action-panel__btns">
+        <button type="button" class="user-modal__btn user-modal__btn--outline" onclick="restoreUserActionButtons()">Cancel</button>
+        <button type="button" class="user-modal__btn user-modal__btn--gold" onclick="saveUserRoleChange()" ${isSelf ? 'disabled' : ''}>
+          <i class="fas fa-check"></i> Update Role
+        </button>
+      </div>
+    </div>
+  `);
+};
+
+window.saveUserProfileEdits = async function () {
+  if (!activeProfileUser) return;
+  const btn = document.querySelector('.user-action-panel__btns .user-modal__btn--primary');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+  }
+  try {
+    const updated = await patchAdminUser(activeProfileUser.id, {
+      full_name: document.getElementById('editFullName')?.value.trim(),
+      email: document.getElementById('editEmail')?.value.trim(),
+      phone: document.getElementById('editPhone')?.value.trim(),
+      city: document.getElementById('editCity')?.value.trim(),
+    });
+    syncUpdatedUser(updated);
+    refreshUsersTable();
+    window.showToast?.('Profile updated successfully', 'fa-check-circle');
+    openUserProfileModal(updated.id);
+  } catch (error) {
+    window.showToast?.(error.message, 'fa-times-circle');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+    }
+  }
+};
+
+window.saveUserRoleChange = async function () {
+  if (!activeProfileUser) return;
+  const newRole = document.getElementById('editUserRole')?.value;
+  if (!newRole || newRole === activeProfileUser.role) {
+    restoreUserActionButtons();
+    return;
+  }
+  try {
+    const updated = await patchAdminUser(activeProfileUser.id, { role: newRole });
+    syncUpdatedUser(updated);
+    refreshUsersTable();
+    window.showToast?.(`Role updated to "${newRole}"`, 'fa-user-shield');
+    openUserProfileModal(updated.id);
+  } catch (error) {
+    window.showToast?.(error.message, 'fa-times-circle');
+  }
+};
+
+window.restoreUserActionButtons = restoreUserActionButtons;
+
+window.userModalAction = async function (action) {
   if (!activeProfileUser) return;
   const name = activeProfileUser.full_name;
 
   switch (action) {
     case 'edit':
-      window.showToast?.(`Edit profile for "${name}" — coming soon`, 'fa-edit');
+      showUserEditForm();
       break;
     case 'role':
-      const newRole = activeProfileUser.role === 'admin' ? 'user' : 'admin';
-      window.showToast?.(`Role change to "${newRole}" for ${name} — demo mode`, 'fa-user-shield');
+      showUserRoleForm();
       break;
     case 'deactivate':
-      if (DEMO_USER_EXTRAS[activeProfileUser.id]) {
-        DEMO_USER_EXTRAS[activeProfileUser.id].status = 'Inactive';
+      if (!confirm(`Deactivate account for "${name}"? They will not be able to sign in.`)) return;
+      try {
+        const updated = await patchAdminUser(activeProfileUser.id, { status: 'Inactive' });
+        syncUpdatedUser(updated);
+        refreshUsersTable();
+        window.showToast?.(`Account "${name}" deactivated`, 'fa-ban');
+        closeUserProfileModal();
+      } catch (error) {
+        window.showToast?.(error.message, 'fa-times-circle');
       }
-      window.showToast?.(`Account "${name}" deactivated`, 'fa-ban');
-      closeUserProfileModal();
-      window.renderEnhancedUsers?.(window.allUsers, window.allBookings, window.allCargo, window.esc, window.fmtDate, window.roleBadge);
       break;
     case 'activate':
-      if (DEMO_USER_EXTRAS[activeProfileUser.id]) {
-        DEMO_USER_EXTRAS[activeProfileUser.id].status = 'Active';
-      } else {
-        DEMO_USER_EXTRAS[activeProfileUser.id] = { status: 'Active' };
+      try {
+        const updated = await patchAdminUser(activeProfileUser.id, { status: 'Active' });
+        syncUpdatedUser(updated);
+        refreshUsersTable();
+        window.showToast?.(`Account "${name}" activated`, 'fa-check-circle');
+        closeUserProfileModal();
+      } catch (error) {
+        window.showToast?.(error.message, 'fa-times-circle');
       }
-      window.showToast?.(`Account "${name}" activated`, 'fa-check-circle');
-      closeUserProfileModal();
-      window.renderEnhancedUsers?.(window.allUsers, window.allBookings, window.allCargo, window.esc, window.fmtDate, window.roleBadge);
       break;
-    case 'cargo':
+    case 'cargo': {
+      const userId = activeProfileUser.id;
+      const userName = activeProfileUser.full_name;
       closeUserProfileModal();
       window.navigate?.('cargo', document.querySelector('[data-section=cargo]'));
-      window.showToast?.(`Showing cargo for ${name}`, 'fa-box');
+      window.filterCargoByUser?.(userId, userName);
+      break;
+    }
+    default:
       break;
   }
 };

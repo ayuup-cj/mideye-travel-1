@@ -491,7 +491,7 @@ if (window.location.pathname.includes('tracking')) {
    12. REGISTER FORM (login handled by api.js)
 ───────────────────────────────────────────── */
 const registerForm = document.getElementById('registerForm');
-if (registerForm) {
+if (registerForm && !registerForm.dataset.apiManaged) {
   registerForm.addEventListener('submit', e => {
     e.preventDefault();
     if (!validateForm(registerForm)) return;

@@ -76,13 +76,16 @@
     .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;}
 
     /* ── STAT CARDS ── */
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.25rem;margin-bottom:2rem;}
+    .stats-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.25rem;margin-bottom:2rem;}
     .stat-card{background:var(--white);border-radius:var(--r-lg);padding:1.5rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+    .stat-card--link{text-decoration:none;color:inherit;cursor:pointer;display:block;}
+    .stat-card--link:hover{color:inherit;}
     .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
     .stat-card.bookings::before{background:linear-gradient(90deg,#441306,#8c3520);}
     .stat-card.cargo::before{background:linear-gradient(90deg,#e8c945,#fee685);}
     .stat-card.pending::before{background:linear-gradient(90deg,#dc8f00,#ffc107);}
     .stat-card.confirmed::before{background:linear-gradient(90deg,#19875e,#28a745);}
+    .stat-card.tracking::before{background:linear-gradient(90deg,#6b1e0d,#b85a40);}
     .stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
     .stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;}
     .stat-label{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(68,19,6,.5);}
@@ -91,7 +94,9 @@
     .stat-card.cargo     .stat-icon{background:rgba(254,230,133,.4);color:#a07a00;}
     .stat-card.pending   .stat-icon{background:rgba(255,193,7,.15);color:#dc8f00;}
     .stat-card.confirmed .stat-icon{background:rgba(40,167,69,.12);color:#19875e;}
+    .stat-card.tracking  .stat-icon{background:rgba(107,30,13,.1);color:var(--brown-mid);}
     .stat-value{font-size:2.4rem;font-weight:700;color:var(--brown);line-height:1;font-variant-numeric:tabular-nums;}
+    .stat-value--action{font-size:1.65rem;}
     .stat-footer{font-size:.77rem;color:rgba(68,19,6,.45);margin-top:.4rem;}
     .stat-value.loading-pulse{animation:pulse 1.2s ease-in-out infinite;}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -168,6 +173,7 @@
       #content{padding:1.25rem;}
       #topBar{padding:0 1.25rem;}
     }
+    @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
     @media(max-width:480px){.stats-grid{grid-template-columns:1fr;}}
   </style>
 </head>
@@ -288,34 +294,14 @@
           <div class="stat-value loading-pulse" id="stat-transit">–</div>
           <div class="stat-footer">Cargo currently shipping</div>
         </div>
-      </div>
-
-      <!-- Quick actions -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6 col-lg-3">
-          <a href="booking.html" class="quick-link-card">
-            <div class="qlc-icon" style="background:rgba(68,19,6,.08);color:var(--brown);"><i class="fas fa-plane"></i></div>
-            <div><div class="qlc-title">Book a Flight</div><div class="qlc-sub">New flight request</div></div>
-          </a>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <a href="cargo.html" class="quick-link-card">
-            <div class="qlc-icon" style="background:rgba(254,230,133,.4);color:#a07a00;"><i class="fas fa-box"></i></div>
-            <div><div class="qlc-title">Ship Cargo</div><div class="qlc-sub">New cargo request</div></div>
-          </a>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <a href="tracking.html" class="quick-link-card">
-            <div class="qlc-icon" style="background:rgba(107,30,13,.1);color:var(--brown-mid);"><i class="fas fa-map-marker-alt"></i></div>
-            <div><div class="qlc-title">Track Shipment</div><div class="qlc-sub">Enter tracking ID</div></div>
-          </a>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <a onclick="navigate('profile',document.querySelector('[data-section=profile]'))" class="quick-link-card" style="cursor:pointer;">
-            <div class="qlc-icon" style="background:rgba(40,167,69,.1);color:#19875e;"><i class="fas fa-user-edit"></i></div>
-            <div><div class="qlc-title">Edit Profile</div><div class="qlc-sub">Update your info</div></div>
-          </a>
-        </div>
+        <a href="tracking.html" class="stat-card tracking stat-card--link">
+          <div class="stat-top">
+            <div class="stat-label">Track Shipment</div>
+            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+          </div>
+          <div class="stat-value stat-value--action"><i class="fas fa-search-location"></i></div>
+          <div class="stat-footer">Enter tracking ID</div>
+        </a>
       </div>
 
       <div class="dash-grid">
