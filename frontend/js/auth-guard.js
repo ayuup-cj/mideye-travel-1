@@ -113,9 +113,7 @@ const AuthGuard = (() => {
     const user  = getUser();
 
     if (token && user) {
-      window.location.replace(
-        user.role === 'admin' ? 'admin.html' : 'user-dashboard.html'
-      );
+      window.location.replace('index.html');
     }
   };
 
