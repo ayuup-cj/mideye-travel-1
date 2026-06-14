@@ -27,7 +27,7 @@ const allowedOrigins = [
   'null', // file:// protocol during local dev
 
   // ── Production: replace with your real Vercel URL ────────────────────────
-  'https://YOUR-VERCEL-DOMAIN.vercel.app',
+  'https://mideye-travel-1.onrender.com',
 ];
 
 app.use(
