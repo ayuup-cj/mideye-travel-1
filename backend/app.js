@@ -57,6 +57,7 @@ app.use(express.urlencoded({ extended: true }));
 // frontend/images    → /images/...
 // frontend/templates → /templates/...
 app.use(express.static(FRONTEND));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Also expose every HTML template at root level so that relative links such as
 // href="booking.html" resolve correctly when the user is on http://localhost:5000/

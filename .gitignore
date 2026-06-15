@@ -1,1 +1,4 @@
 mideye-travel-1/
+backend/uploads/avatars/*
+!backend/uploads/avatars/.gitkeep
+backend/.env

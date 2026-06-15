@@ -5,6 +5,7 @@ const { body } = require('express-validator');
 const {
   getProfile,
   updateProfile,
+  uploadProfileAvatar,
   changePassword,
   getUserBookings,
   getUserCargo,
@@ -13,6 +14,7 @@ const {
 
 const { authenticateToken } = require('../middleware/auth');
 const validate = require('../middleware/validate');
+const { uploadAvatar } = require('../middleware/uploadAvatar');
 
 // All user routes require a valid token.
 // Both 'user' and 'admin' roles can access these (admins may view their own data).
@@ -29,6 +31,23 @@ router.put(
   ],
   validate,
   updateProfile
+);
+
+// POST /api/user/profile/avatar
+router.post(
+  '/profile/avatar',
+  (req, res, next) => {
+    uploadAvatar.single('avatar')(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: err.message || 'Invalid image upload.',
+        });
+      }
+      next();
+    });
+  },
+  uploadProfileAvatar
 );
 
 // PUT  /api/user/change-password
