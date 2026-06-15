@@ -53,6 +53,12 @@ const connectDB = async () => {
         'ALTER TABLE users ADD COLUMN city VARCHAR(100) DEFAULT NULL AFTER phone'
       );
     }
+    const [profileImageCol] = await sequelize.query("SHOW COLUMNS FROM users LIKE 'profile_image'");
+    if (!profileImageCol.length) {
+      await sequelize.query(
+        'ALTER TABLE users ADD COLUMN profile_image VARCHAR(500) DEFAULT NULL AFTER city'
+      );
+    }
 
     await sequelize.sync({ alter: false });
     console.log('✅ Database tables synced');
