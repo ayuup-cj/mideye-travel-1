@@ -47,12 +47,6 @@
     .nav-item-link:hover .nav-icon{background:rgba(254,230,133,.15);}
     .nav-item-link.active{color:var(--brown);background:var(--gold);}
     .nav-item-link.active .nav-icon{background:rgba(68,19,6,.15);color:var(--brown);}
-    .sidebar-profile-top{padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.1);}
-    .sidebar-user{display:flex;align-items:center;gap:.75rem;}
-    .sidebar-avatar{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--brown);font-weight:700;font-size:.9rem;flex-shrink:0;overflow:hidden;position:relative;}
-    .sidebar-user-name{font-size:.85rem;font-weight:600;color:var(--white);line-height:1.3;}
-    .sidebar-user-role{font-size:.72rem;color:rgba(255,255,255,.45);}
-    .sidebar-user .sidebar-avatar{width:42px;height:42px;font-size:1rem;}
 
     /* ── MAIN ── */
     #mainWrap{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column;}
@@ -84,8 +78,6 @@
     .topbar-profile-menu-item i{width:18px;text-align:center;color:var(--brown-mid);}
     .topbar-profile-menu-item.danger{color:#b02a37;}
     .topbar-profile-menu-item.danger i{color:#b02a37;}
-    .sidebar-user{cursor:pointer;border-radius:var(--r-sm);padding:.35rem;margin:-.35rem;transition:background .18s;}
-    .sidebar-user:hover{background:rgba(255,255,255,.06);}
 
     /* ── CONTENT ── */
     #content{flex:1;padding:2rem;overflow-x:hidden;}
@@ -168,9 +160,6 @@
     .avatar-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
     .btn-avatar-remove{background:transparent;color:#b02a37;border:1.5px solid rgba(220,53,69,.25);border-radius:var(--r-sm);padding:.45rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;display:none;}
     .btn-avatar-remove.show{display:inline-flex;align-items:center;gap:.35rem;}
-    .sidebar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
-    .sidebar-avatar.has-image .sidebar-avatar-initial{display:none;}
-    .sidebar-avatar.has-image img{display:block;}
     .form-field{margin-bottom:1.25rem;}
     .form-field label{display:block;font-size:.82rem;font-weight:600;color:rgba(68,19,6,.7);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.06em;}
     .form-field input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:.7rem 1rem;font-size:.9rem;color:var(--brown);background:var(--cream);outline:none;transition:border-color .18s;}
@@ -223,19 +212,6 @@
     </div>
   </div>
 
-  <div class="sidebar-profile-top">
-    <div class="sidebar-user" onclick="openProfileFromMenu()" title="Open profile">
-      <div class="sidebar-avatar" id="sidebarAvatar">
-        <span class="sidebar-avatar-initial" id="sidebarAvatarInitial">U</span>
-        <img id="sidebarAvatarImg" alt="Profile photo"/>
-      </div>
-      <div>
-        <div class="sidebar-user-name" id="sidebarName">User</div>
-        <div class="sidebar-user-role">Registered Member</div>
-      </div>
-    </div>
-  </div>
-
   <nav class="sidebar-nav">
     <div class="sidebar-section-label">Overview</div>
     <a class="nav-item-link active" onclick="navigate('dashboard',this)">
@@ -250,11 +226,6 @@
     <a class="nav-item-link" onclick="navigate('cargo',this)">
       <span class="nav-icon"><i class="fas fa-box"></i></span>My Cargo
       <span class="nav-badge" id="badge-cargo" style="margin-left:auto;background:rgba(254,230,133,.2);color:var(--gold);font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;min-width:22px;text-align:center;">–</span>
-    </a>
-
-    <div class="sidebar-section-label">Account</div>
-    <a class="nav-item-link" onclick="navigate('profile',this)">
-      <span class="nav-icon"><i class="fas fa-user-cog"></i></span>Profile Settings
     </a>
 
     <div class="sidebar-section-label">Site</div>
@@ -604,15 +575,6 @@ function updateAllAvatars(imagePath, fallbackName) {
     fallbackName,
   });
 
-  const sidebar = document.getElementById('sidebarAvatar');
-  setAvatarDisplay({
-    ringEl: sidebar,
-    imgEl: document.getElementById('sidebarAvatarImg'),
-    initialEl: document.getElementById('sidebarAvatarInitial'),
-    imagePath,
-    fallbackName,
-  });
-
   const topbarAvatar = document.getElementById('topbarProfileAvatar');
   setAvatarDisplay({
     ringEl: topbarAvatar,
@@ -672,9 +634,7 @@ document.getElementById('avatarFileInput')?.addEventListener('change', (e) => {
 
 document.getElementById('avatarRemoveBtn')?.addEventListener('click', clearAvatarPreview);
 
-/* ── Populate sidebar ── */
-document.getElementById('sidebarName').textContent   = user?.full_name || 'User';
-document.getElementById('sidebarAvatarInitial').textContent = (user?.full_name || 'U')[0].toUpperCase();
+/* ── Populate top bar profile ── */
 document.getElementById('topbarProfileName').textContent = (user?.full_name || 'User').split(' ')[0];
 updateAllAvatars(user?.profile_image || null, user?.full_name);
 document.getElementById('welcomeHeading').textContent = `Welcome back, ${user?.full_name?.split(' ')[0] || 'there'}!`;
@@ -715,7 +675,7 @@ function toggleProfileMenu() {
 
 function openProfileFromMenu() {
   closeProfileMenu();
-  navigate('profile', document.querySelector('[onclick*="profile"]'));
+  navigate('profile', null);
 }
 
 document.getElementById('topbarProfileBtn')?.addEventListener('click', (e) => {
@@ -933,7 +893,7 @@ document.getElementById('profileForm').addEventListener('submit', async e => {
       localStorage.setItem('mideye_user', JSON.stringify(stored));
 
       savedProfileImage = stored.profile_image;
-      document.getElementById('sidebarName').textContent = stored.full_name;
+      document.getElementById('topbarProfileName').textContent = stored.full_name.split(' ')[0];
       updateAllAvatars(savedProfileImage, stored.full_name);
       showToast(hadPendingAvatar ? 'Profile and photo saved!' : 'Profile updated successfully!');
     } else {
