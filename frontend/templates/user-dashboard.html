@@ -49,7 +49,7 @@
     .nav-item-link.active .nav-icon{background:rgba(68,19,6,.15);color:var(--brown);}
     .sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.1);}
     .sidebar-user{display:flex;align-items:center;gap:.75rem;}
-    .sidebar-avatar{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--brown);font-weight:700;font-size:.9rem;flex-shrink:0;}
+    .sidebar-avatar{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--brown);font-weight:700;font-size:.9rem;flex-shrink:0;overflow:hidden;position:relative;}
     .sidebar-user-name{font-size:.85rem;font-weight:600;color:var(--white);}
     .sidebar-user-role{font-size:.72rem;color:rgba(255,255,255,.45);}
 
@@ -136,7 +136,21 @@
 
     /* ── PROFILE FORM ── */
     .profile-card{background:var(--white);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);border:1px solid var(--border);padding:2rem;margin-bottom:1.5rem;}
-    .profile-avatar-ring{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--brown),var(--brown-mid));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:2rem;font-weight:700;font-family:'Cormorant Garamond',serif;margin-bottom:1rem;}
+    .profile-avatar-ring{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--brown),var(--brown-mid));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:2rem;font-weight:700;font-family:'Cormorant Garamond',serif;margin-bottom:1rem;overflow:hidden;position:relative;flex-shrink:0;}
+    .profile-avatar-ring img{width:100%;height:100%;object-fit:cover;display:none;}
+    .profile-avatar-ring.has-image .avatar-initial{display:none;}
+    .profile-avatar-ring.has-image img{display:block;}
+    .avatar-upload-wrap{position:relative;display:inline-block;margin-bottom:1rem;}
+    .avatar-upload-btn{position:absolute;bottom:0;right:-4px;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--brown);border:2px solid var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.75rem;transition:transform .18s;box-shadow:var(--shadow-sm);}
+    .avatar-upload-btn:hover{transform:scale(1.08);}
+    .avatar-preview-hint{font-size:.75rem;color:#a07200;font-weight:600;margin:-.5rem 0 1rem;display:none;align-items:center;gap:.35rem;}
+    .avatar-preview-hint.show{display:flex;}
+    .avatar-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+    .btn-avatar-remove{background:transparent;color:#b02a37;border:1.5px solid rgba(220,53,69,.25);border-radius:var(--r-sm);padding:.45rem .9rem;font-size:.78rem;font-weight:600;cursor:pointer;display:none;}
+    .btn-avatar-remove.show{display:inline-flex;align-items:center;gap:.35rem;}
+    .sidebar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
+    .sidebar-avatar.has-image .sidebar-avatar-initial{display:none;}
+    .sidebar-avatar.has-image img{display:block;}
     .form-field{margin-bottom:1.25rem;}
     .form-field label{display:block;font-size:.82rem;font-weight:600;color:rgba(68,19,6,.7);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.06em;}
     .form-field input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:.7rem 1rem;font-size:.9rem;color:var(--brown);background:var(--cream);outline:none;transition:border-color .18s;}
@@ -224,7 +238,10 @@
 
   <div class="sidebar-footer">
     <div class="sidebar-user">
-      <div class="sidebar-avatar" id="sidebarAvatar">U</div>
+      <div class="sidebar-avatar" id="sidebarAvatar">
+        <span class="sidebar-avatar-initial" id="sidebarAvatarInitial">U</span>
+        <img id="sidebarAvatarImg" alt="Profile photo"/>
+      </div>
       <div>
         <div class="sidebar-user-name" id="sidebarName">User</div>
         <div class="sidebar-user-role">Registered Member</div>
@@ -403,7 +420,24 @@
         <div class="col-lg-7">
           <!-- Personal Info -->
           <div class="profile-card">
-            <div class="profile-avatar-ring" id="profileAvatar">U</div>
+            <div class="avatar-upload-wrap">
+              <div class="profile-avatar-ring" id="profileAvatarRing">
+                <span class="avatar-initial" id="profileAvatarInitial">U</span>
+                <img id="profileAvatarImg" alt="Profile preview"/>
+              </div>
+              <label class="avatar-upload-btn" for="avatarFileInput" title="Change photo">
+                <i class="fas fa-camera"></i>
+              </label>
+              <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden/>
+            </div>
+            <div class="avatar-preview-hint" id="avatarPreviewHint">
+              <i class="fas fa-eye"></i> Preview — click Save Changes to upload
+            </div>
+            <div class="avatar-actions">
+              <button type="button" class="btn-avatar-remove" id="avatarRemoveBtn">
+                <i class="fas fa-times"></i> Remove preview
+              </button>
+            </div>
             <h5 style="color:var(--brown);font-weight:700;margin-bottom:.25rem;" id="profileName">–</h5>
             <p style="font-size:.82rem;color:rgba(68,19,6,.5);margin-bottom:1.5rem;" id="profileEmail">–</p>
 
@@ -492,13 +526,102 @@
 'use strict';
 
 const API   = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:5000/api';
+const API_ORIGIN = API.replace(/\/api\/?$/, '');
 const REFRESH_INTERVAL_MS = 20000; // auto-refresh so admin status changes appear quickly
 const token = localStorage.getItem('mideye_token');
 const user  = JSON.parse(localStorage.getItem('mideye_user') || 'null');
 
+let pendingAvatarFile = null;
+let savedProfileImage = user?.profile_image || null;
+
+const avatarFullUrl = (path) => (path ? `${API_ORIGIN}${path}` : null);
+
+function setAvatarDisplay({ ringEl, imgEl, initialEl, imagePath, fallbackName }) {
+  const url = avatarFullUrl(imagePath);
+  const initial = (fallbackName || 'U')[0].toUpperCase();
+
+  if (initialEl) initialEl.textContent = initial;
+
+  if (url && imgEl) {
+    imgEl.src = url;
+    imgEl.alt = `${fallbackName || 'User'} profile photo`;
+    ringEl?.classList.add('has-image');
+  } else {
+    if (imgEl) {
+      imgEl.removeAttribute('src');
+      imgEl.alt = '';
+    }
+    ringEl?.classList.remove('has-image');
+  }
+}
+
+function updateAllAvatars(imagePath, fallbackName) {
+  setAvatarDisplay({
+    ringEl: document.getElementById('profileAvatarRing'),
+    imgEl: document.getElementById('profileAvatarImg'),
+    initialEl: document.getElementById('profileAvatarInitial'),
+    imagePath,
+    fallbackName,
+  });
+
+  const sidebar = document.getElementById('sidebarAvatar');
+  setAvatarDisplay({
+    ringEl: sidebar,
+    imgEl: document.getElementById('sidebarAvatarImg'),
+    initialEl: document.getElementById('sidebarAvatarInitial'),
+    imagePath,
+    fallbackName,
+  });
+}
+
+function setAvatarPreviewHint(show) {
+  document.getElementById('avatarPreviewHint')?.classList.toggle('show', show);
+  document.getElementById('avatarRemoveBtn')?.classList.toggle('show', show);
+}
+
+function clearAvatarPreview() {
+  pendingAvatarFile = null;
+  document.getElementById('avatarFileInput').value = '';
+  setAvatarPreviewHint(false);
+  updateAllAvatars(savedProfileImage, document.getElementById('inp-full_name')?.value || user?.full_name);
+}
+
+document.getElementById('avatarFileInput')?.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  if (!allowed.includes(file.type)) {
+    showToast('Please choose a JPEG, PNG, WebP, or GIF image.', 'fa-times-circle');
+    e.target.value = '';
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Image must be 5 MB or smaller.', 'fa-times-circle');
+    e.target.value = '';
+    return;
+  }
+
+  pendingAvatarFile = file;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const imgEl = document.getElementById('profileAvatarImg');
+    const ringEl = document.getElementById('profileAvatarRing');
+    if (imgEl && ringEl) {
+      imgEl.src = reader.result;
+      ringEl.classList.add('has-image');
+    }
+    setAvatarPreviewHint(true);
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('avatarRemoveBtn')?.addEventListener('click', clearAvatarPreview);
+
 /* ── Populate sidebar ── */
 document.getElementById('sidebarName').textContent   = user?.full_name || 'User';
-document.getElementById('sidebarAvatar').textContent = (user?.full_name || 'U')[0].toUpperCase();
+document.getElementById('sidebarAvatarInitial').textContent = (user?.full_name || 'U')[0].toUpperCase();
+updateAllAvatars(user?.profile_image || null, user?.full_name);
 document.getElementById('welcomeHeading').textContent = `Welcome back, ${user?.full_name?.split(' ')[0] || 'there'}!`;
 
 /* ── Clock ── */
@@ -655,7 +778,8 @@ async function loadProfile() {
   try {
     const { data } = await apiFetch('/user/profile');
     const u = data.user;
-    document.getElementById('profileAvatar').textContent = (u.full_name||'U')[0].toUpperCase();
+    savedProfileImage = u.profile_image || null;
+    updateAllAvatars(savedProfileImage, u.full_name);
     document.getElementById('profileName').textContent   = u.full_name;
     document.getElementById('profileEmail').textContent  = u.email;
     document.getElementById('inp-full_name').value = u.full_name || '';
@@ -663,6 +787,7 @@ async function loadProfile() {
     document.getElementById('inp-email').value     = u.email    || '';
     document.getElementById('inp-joined').value    = fmtDate(u.created_at);
     document.getElementById('inp-role').value      = u.role === 'admin' ? 'Administrator' : 'Registered Member';
+    clearAvatarPreview();
   } catch(e) { showToast('Could not load profile.','fa-times-circle'); }
 }
 
@@ -670,7 +795,30 @@ document.getElementById('profileForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = e.target.querySelector('[type=submit]');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving…';
+  const hadPendingAvatar = !!pendingAvatarFile;
   try {
+    let latestUser = null;
+
+    if (pendingAvatarFile) {
+      const formData = new FormData();
+      formData.append('avatar', pendingAvatarFile);
+      const avatarRes = await fetch(`${API}/user/profile/avatar`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const avatarData = await avatarRes.json();
+      if (!avatarData.success) {
+        showToast(avatarData.message || 'Photo upload failed.', 'fa-times-circle');
+        return;
+      }
+      latestUser = avatarData.data.user;
+      savedProfileImage = latestUser.profile_image || null;
+      pendingAvatarFile = null;
+      setAvatarPreviewHint(false);
+      document.getElementById('avatarFileInput').value = '';
+    }
+
     const res = await fetch(`${API}/user/profile`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -681,13 +829,19 @@ document.getElementById('profileForm').addEventListener('submit', async e => {
     });
     const data = await res.json();
     if (data.success) {
-      // Update localStorage with new name
+      const updatedUser = latestUser
+        ? { ...latestUser, ...data.data.user }
+        : data.data.user;
+
       const stored = JSON.parse(localStorage.getItem('mideye_user') || '{}');
-      stored.full_name = data.data.user.full_name;
+      stored.full_name = updatedUser.full_name;
+      stored.profile_image = updatedUser.profile_image || savedProfileImage || null;
       localStorage.setItem('mideye_user', JSON.stringify(stored));
-      document.getElementById('sidebarName').textContent   = stored.full_name;
-      document.getElementById('sidebarAvatar').textContent = stored.full_name[0].toUpperCase();
-      showToast('Profile updated successfully!');
+
+      savedProfileImage = stored.profile_image;
+      document.getElementById('sidebarName').textContent = stored.full_name;
+      updateAllAvatars(savedProfileImage, stored.full_name);
+      showToast(hadPendingAvatar ? 'Profile and photo saved!' : 'Profile updated successfully!');
     } else {
       showToast(data.message || 'Update failed.','fa-times-circle');
     }

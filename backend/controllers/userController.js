@@ -1,11 +1,24 @@
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 const { User, Booking, Cargo } = require('../models');
+const { UPLOAD_DIR } = require('../middleware/uploadAvatar');
+
+const PROFILE_ATTRS = ['id', 'full_name', 'email', 'phone', 'role', 'profile_image', 'created_at'];
+
+const deleteAvatarFile = (profileImage) => {
+  if (!profileImage || !profileImage.startsWith('/uploads/avatars/')) return;
+  const filePath = path.join(__dirname, '..', profileImage.replace(/^\//, ''));
+  if (fs.existsSync(filePath)) {
+    try { fs.unlinkSync(filePath); } catch (err) { console.error('deleteAvatarFile:', err.message); }
+  }
+};
 
 // GET /api/user/profile
 const getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'full_name', 'email', 'phone', 'role', 'created_at'],
+      attributes: PROFILE_ATTRS,
     });
     return res.status(200).json({ success: true, data: { user } });
   } catch (error) {
@@ -25,7 +38,7 @@ const updateProfile = async (req, res) => {
     );
 
     const updated = await User.findByPk(req.user.id, {
-      attributes: ['id', 'full_name', 'email', 'phone', 'role'],
+      attributes: PROFILE_ATTRS.filter((a) => a !== 'created_at'),
     });
 
     return res.status(200).json({
@@ -35,6 +48,43 @@ const updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('updateProfile error:', error);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+};
+
+// POST /api/user/profile/avatar
+const uploadProfileAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select an image to upload.',
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+    if (user.profile_image) {
+      deleteAvatarFile(user.profile_image);
+    }
+
+    const profileImage = `/uploads/avatars/${req.file.filename}`;
+    await User.update({ profile_image: profileImage }, { where: { id: req.user.id } });
+
+    const updated = await User.findByPk(req.user.id, {
+      attributes: PROFILE_ATTRS.filter((a) => a !== 'created_at'),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile photo updated successfully.',
+      data: { user: updated },
+    });
+  } catch (error) {
+    if (req.file) {
+      const uploaded = path.join(UPLOAD_DIR, req.file.filename);
+      if (fs.existsSync(uploaded)) fs.unlinkSync(uploaded);
+    }
+    console.error('uploadProfileAvatar error:', error);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
@@ -166,6 +216,7 @@ const getUserStats = async (req, res) => {
 module.exports = {
   getProfile,
   updateProfile,
+  uploadProfileAvatar,
   changePassword,
   getUserBookings,
   getUserCargo,
