@@ -902,6 +902,11 @@ document.addEventListener('visibilitychange', () => {
 /* ── Boot ── */
 (async () => {
   await Promise.allSettled([loadStats(), loadBookings(), loadCargo()]);
+
+  const section = new URLSearchParams(window.location.search).get('section');
+  if (section === 'profile') {
+    navigate('profile', document.querySelector('[onclick*="profile"]'));
+  }
 })();
 </script>
 </body>

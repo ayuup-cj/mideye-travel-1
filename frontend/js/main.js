@@ -79,15 +79,16 @@ navLinks.forEach(link => {
     if (token && user) {
       // Show Dashboard link pointing to the right dashboard for this role
       const dashHref = user.role === 'admin' ? 'admin.html' : 'user-dashboard.html';
+      const profileHref = user.role === 'admin' ? 'admin.html' : 'user-dashboard.html?section=profile';
       dashItem.style.display = '';
       dashLink.href = dashHref;
 
-      // Replace Login / Register with first name + Logout
+      // Replace Login / Register with profile link + Logout
       if (authBtns) {
         authBtns.innerHTML = `
-          <span class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;pointer-events:none;opacity:0.85;">
+          <a href="${profileHref}" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;text-decoration:none;" title="My Profile">
             <i class="fas fa-user-circle me-1"></i>${(user.full_name || 'User').split(' ')[0]}
-          </span>
+          </a>
           <button onclick="mideyeLogout()" class="btn-gold-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;border:none;cursor:pointer;">
             <i class="fas fa-sign-out-alt me-1"></i>Logout
           </button>`;
